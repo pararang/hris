@@ -7,12 +7,12 @@ CREATE TABLE payroll_periods (
     status VARCHAR(20) NOT NULL DEFAULT 'pending', -- pending, processing, paid
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    created_by UUID NOT NULL,
-    CONSTRAINT fk_created_by
-        FOREIGN KEY (created_by)
-        REFERENCES users (id)
-        ON DELETE RESTRICT
+    created_by VARCHAR(255) NOT NULL,
+    updated_by VARCHAR(255)
 );
+
+CREATE INDEX idx_payroll_periods_status ON payroll_periods (status);
+CREATE INDEX idx_payroll_periods_dates ON payroll_periods (start_date, end_date);
 -- +goose StatementEnd
 
 -- +goose Down
