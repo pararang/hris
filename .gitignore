@@ -1,0 +1,8 @@
+*.out
+.idea/
+.vscode/
+*.swp
+*.swo
+.env
+*.log
+.DS_Store
