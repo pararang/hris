@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/prrng/dealls/domain/entity"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -81,8 +82,8 @@ type userSeeder struct {
 	db *sql.DB
 }
 
-func (s *userSeeder) CreateEmployee(ctx context.Context, user *entity.User) (uint, error) {
-	var id uint
+func (s *userSeeder) CreateEmployee(ctx context.Context, user *entity.User) (uuid.UUID, error) {
+	var id uuid.UUID
 	query := `INSERT INTO users (name, email, password, base_salary, is_admin, created_at, updated_at, created_by)
               VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
 
@@ -102,7 +103,7 @@ func (s *userSeeder) CreateEmployee(ctx context.Context, user *entity.User) (uin
 	return id, err
 }
 
-func (s *userSeeder) SetAsAdmin(ctx context.Context, id uint) error {
+func (s *userSeeder) SetAsAdmin(ctx context.Context, id uuid.UUID) error {
 	query := `UPDATE users SET is_admin = true WHERE id = $1`
 	_, err := s.db.ExecContext(ctx, query, id)
 	return err
