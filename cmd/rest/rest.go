@@ -33,10 +33,12 @@ func Serve() {
 
 	// Initialize repositories
 	userRepo := repository.NewUserRepository(db)
+	attendanceRepo := repository.NewAttendanceRepository(db)
 	auditRepo := repository.NewAuditRepository(db)
 
 	// Initialize use cases
 	userUseCase := usecase.NewUserUseCase(userRepo, auditRepo)
+	attendanceUseCase := usecase.NewAttendanceUseCase(attendanceRepo)
 	auditUseCase := usecase.NewAuditUseCase(auditRepo)
 
 	jwtService := auth.NewJWTService(cfg.JWT.Secret, time.Duration(cfg.JWT.ExpiryMinutes)*time.Minute)
@@ -44,12 +46,14 @@ func Serve() {
 
 	// Initialize handlers
 	userHandler := handler.NewUserHandler(userUseCase, jwtService, libLog)
+	attendanceHandler := handler.NewAttendanceHandler(attendanceUseCase, libLog)
 
 	authMiddleware := middleware.NewAuthMiddleware(jwtService)
 	loggerMiddleware := middleware.NewLoggerMiddleware(auditUseCase)
 
 	router := setupRouter(
 		userHandler,
+		attendanceHandler,
 		authMiddleware,
 		loggerMiddleware,
 	)

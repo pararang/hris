@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/prrng/dealls/domain/usecase"
-	"github.com/prrng/dealls/interface/api/dto"
+	"github.com/prrng/dealls/dto"
 	"github.com/prrng/dealls/libs/auth"
 	"github.com/prrng/dealls/libs/httpresp"
 	"github.com/prrng/dealls/libs/logger"

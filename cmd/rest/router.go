@@ -9,6 +9,7 @@ import (
 // SetupRouter sets up the HTTP router
 func setupRouter(
 	userHandler *handler.UserHandler,
+	attendanceHandler *handler.AttendanceHandler,
 	authMiddleware *middleware.AuthMiddleware,
 	loggerMiddleware *middleware.LoggerMiddleware,
 ) *gin.Engine {
@@ -28,6 +29,15 @@ func setupRouter(
 		})
 	}
 
+	// Admin routes
+	admin := router.Group("/v1/admin")
+	admin.Use(authMiddleware.AdminAuth())
+	admin.Use(loggerMiddleware.Logger())
+	{
+		admin.POST("/payroll-periods", attendanceHandler.CreateAttendancePeriod)
+
+	}
+
 	// Employee routes
 	employee := router.Group("/api/employee")
 	employee.Use(authMiddleware.EmployeeAuth())
@@ -35,17 +45,6 @@ func setupRouter(
 	{
 		// employee.GET("/profile", userHandler.GetEmployeeProfile)
 		// employee.PUT("/profile", userHandler.UpdateEmployeeProfile)
-	}
-
-	// Admin routes
-	admin := router.Group("/api/admin")
-	admin.Use(authMiddleware.AdminAuth())
-	admin.Use(loggerMiddleware.Logger())
-	{
-		// User management
-		// admin.POST("/employee", userHandler.RegisterEmployee)
-		// admin.GET("/employee", userHandler.ListEmployees)
-
 	}
 
 	return router

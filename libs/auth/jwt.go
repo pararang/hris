@@ -8,11 +8,17 @@ import (
 	"github.com/google/uuid"
 )
 
+const (
+	CtxKeyAuthUserID    = "auth_user_id"
+	CtxKeyAuthUserEmail = "auth_user_email"
+	CtxKeyAuthUserRole  = "auth_user_role"
+)
+
 // JWTClaims represents the claims in a JWT
 type JWTClaims struct {
-	UserID   uuid.UUID `json:"user_id"`
-	Username string    `json:"username"`
-	Role     string    `json:"role"`
+	ID    uuid.UUID `json:"id"`
+	Email string    `json:"email"`
+	Role  string    `json:"role"`
 	jwt.RegisteredClaims
 }
 
@@ -31,11 +37,11 @@ func NewJWTService(secretKey string, tokenDuration time.Duration) *JWTService {
 }
 
 // GenerateToken generates a new JWT token
-func (s *JWTService) GenerateToken(userID uuid.UUID, username, role string) (string, error) {
+func (s *JWTService) GenerateToken(userID uuid.UUID, email, role string) (string, error) {
 	claims := &JWTClaims{
-		UserID:   userID,
-		Username: username,
-		Role:     role,
+		ID:    userID,
+		Email: email,
+		Role:  role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.tokenDuration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
