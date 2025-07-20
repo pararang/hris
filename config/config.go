@@ -23,10 +23,11 @@ type JWT struct {
 }
 
 type Config struct {
-	Env  string
-	Port int
-	DB   DB
-	JWT  JWT
+	Env    string
+	Port   int
+	APIKey string
+	DB     DB
+	JWT    JWT
 }
 
 func New() Config {
@@ -37,8 +38,9 @@ func New() Config {
 	}
 
 	return Config{
-		Env:  getEnvString("ENV", "development"),
-		Port: getEnvInt("PORT", 8080),
+		Env:    getEnvString("ENV", "development"),
+		Port:   getEnvInt("PORT", 8080),
+		APIKey: getEnvString("API_KEY", "secret"),
 		DB: DB{
 			Name:     getEnvString("DB_NAME", "postgres"),
 			Host:     getEnvString("DB_HOST", "localhost"),

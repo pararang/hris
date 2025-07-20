@@ -57,6 +57,7 @@ func Serve() {
 	reimbursementHandler := handler.NewReimbursementHandler(reimbursementUseCase)
 	payslipHandler := handler.NewPayslipHandler(payslipUseCase)
 
+	apiKeyMiddleware := middleware.NewApiKeyMiddleware(cfg.APIKey)
 	authMiddleware := middleware.NewAuthMiddleware(jwtService)
 	loggerMiddleware := middleware.NewLoggerMiddleware(auditUseCase)
 
@@ -66,6 +67,7 @@ func Serve() {
 		overtimeHandler,
 		reimbursementHandler,
 		payslipHandler,
+		apiKeyMiddleware,
 		authMiddleware,
 		loggerMiddleware,
 	)
