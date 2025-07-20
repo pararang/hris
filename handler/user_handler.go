@@ -27,13 +27,15 @@ func NewUserHandler(userUseCase usecase.UserUseCase, jwtService *auth.JWTService
 }
 
 func (h *UserHandler) Login(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	var req dto.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, httpresp.Err(err))
 		return
 	}
 
-	employee, err := h.userUseCase.Authenticate(c.Request.Context(), req.Email, req.Password)
+	employee, err := h.userUseCase.Authenticate(ctx, req.Email, req.Password)
 	if err != nil {
 		h.log.Error("Failed to authenticate user", err)
 		c.JSON(http.StatusUnauthorized, httpresp.Err(errors.New("invalid credentials")))

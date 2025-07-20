@@ -10,6 +10,7 @@ import (
 func setupRouter(
 	userHandler *handler.UserHandler,
 	attendanceHandler *handler.AttendanceHandler,
+	overtimeHandler *handler.OvertimeHandler,
 	authMiddleware *middleware.AuthMiddleware,
 	loggerMiddleware *middleware.LoggerMiddleware,
 ) *gin.Engine {
@@ -37,6 +38,13 @@ func setupRouter(
 			attendances.POST("/clockin", attendanceHandler.Clockin)
 			attendances.POST("/clockout", attendanceHandler.Clockout)
 			// Add other employee attendance routes here
+		}
+
+		overtimes := v1.Group("/overtimes")
+		overtimes.Use(authMiddleware.EmployeeAuth())
+		{
+			overtimes.POST("", overtimeHandler.SubmitOvertime)
+			// Add other employee overtime routes here
 		}
 	}
 

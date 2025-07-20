@@ -62,7 +62,7 @@ func (a *attendanceUseCase) ClockIn(ctx context.Context, userID uuid.UUID) (*ent
 	now := time.Now()
 
 	// check if weekend
-	if now.Weekday() == time.Saturday || now.Weekday() == time.Sunday {
+	if libs.IsWeekend(now) {
 		return nil, libs.ErrWeekendNotAllowed{}
 	}
 
@@ -84,7 +84,7 @@ func (a *attendanceUseCase) ClockIn(ctx context.Context, userID uuid.UUID) (*ent
 
 	createdBy, ok := ctx.Value(auth.CtxKeyAuthUserEmail).(string)
 	if !ok {
-		return nil, fmt.Errorf("error on get updatedBy: %w", err)
+		return nil, fmt.Errorf("error on get createdBy")
 	}
 
 	createdAttendance, err := a.attendanceRepo.CreateAttendance(ctx, &entity.Attendance{
@@ -118,7 +118,7 @@ func (a *attendanceUseCase) ClockOut(ctx context.Context, userID uuid.UUID) (*en
 
 	updatedBy, ok := ctx.Value(auth.CtxKeyAuthUserEmail).(string)
 	if !ok {
-		return nil, fmt.Errorf("error on get updatedBy: %w", err)
+		return nil, fmt.Errorf("error on get updatedBy")
 	}
 
 	attendanceIn.ClockoutAt = &now

@@ -34,11 +34,13 @@ func Serve() {
 	// Initialize repositories
 	userRepo := repository.NewUserRepository(db)
 	attendanceRepo := repository.NewAttendanceRepository(db)
+	overtimeRepo := repository.NewOvertimeRepository(db)
 	auditRepo := repository.NewAuditRepository(db)
 
 	// Initialize use cases
 	userUseCase := usecase.NewUserUseCase(userRepo, auditRepo)
 	attendanceUseCase := usecase.NewAttendanceUseCase(attendanceRepo)
+	overtimeUseCase := usecase.NewOvertimeUseCase(overtimeRepo, attendanceRepo)
 	auditUseCase := usecase.NewAuditUseCase(auditRepo)
 
 	jwtService := auth.NewJWTService(cfg.JWT.Secret, time.Duration(cfg.JWT.ExpiryMinutes)*time.Minute)
@@ -47,6 +49,7 @@ func Serve() {
 	// Initialize handlers
 	userHandler := handler.NewUserHandler(userUseCase, jwtService, libLog)
 	attendanceHandler := handler.NewAttendanceHandler(attendanceUseCase, libLog)
+	overtimeHandler := handler.NewOvertimeHandler(overtimeUseCase)
 
 	authMiddleware := middleware.NewAuthMiddleware(jwtService)
 	loggerMiddleware := middleware.NewLoggerMiddleware(auditUseCase)
@@ -54,6 +57,7 @@ func Serve() {
 	router := setupRouter(
 		userHandler,
 		attendanceHandler,
+		overtimeHandler,
 		authMiddleware,
 		loggerMiddleware,
 	)

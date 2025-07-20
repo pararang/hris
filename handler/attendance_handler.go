@@ -31,6 +31,7 @@ func NewAttendanceHandler(attendanceUseCase usecase.AttendanceUseCase, log logge
 }
 
 func (h *AttendanceHandler) CreateAttendancePeriod(c *gin.Context) {
+	ctx := c.Request.Context()
 	var req dto.CreateAttendancePeriodRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, httpresp.Err(err))
@@ -73,7 +74,7 @@ func (h *AttendanceHandler) CreateAttendancePeriod(c *gin.Context) {
 		},
 	}
 
-	createdPeriod, err := h.attendanceUseCase.CreateAttendancePeriod(c.Request.Context(), period)
+	createdPeriod, err := h.attendanceUseCase.CreateAttendancePeriod(ctx, period)
 	if err != nil {
 		h.log.Warn(err.Error())
 		c.JSON(http.StatusInternalServerError, httpresp.Err(err))
@@ -96,7 +97,7 @@ func (h *AttendanceHandler) Clockin(c *gin.Context) {
 		return
 	}
 
-	createdAttendance, err := h.attendanceUseCase.ClockIn(c.Request.Context(), userID)
+	createdAttendance, err := h.attendanceUseCase.ClockIn(ctx, userID)
 	if err != nil {
 		switch true {
 		case errors.Is(err, libs.ErrWeekendNotAllowed{}):
@@ -124,7 +125,7 @@ func (h *AttendanceHandler) Clockout(c *gin.Context) {
 		return
 	}
 
-	createdAttendance, err := h.attendanceUseCase.ClockOut(c.Request.Context(), userID)
+	createdAttendance, err := h.attendanceUseCase.ClockOut(ctx, userID)
 	if err != nil {
 		switch true {
 		case errors.Is(err, libs.ErrShouldClockIn{}):
