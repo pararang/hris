@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pararang/hris/domain/entity"
+	"github.com/pararang/hris/entity"
 	"golang.org/x/crypto/bcrypt"
 )
 

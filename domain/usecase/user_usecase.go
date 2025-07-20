@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/pararang/hris/domain/entity"
+	"github.com/pararang/hris/entity"
 )
 
 // UserUseCase defines the interface for user-related business logic

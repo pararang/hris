@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pararang/hris/domain/entity"
 	"github.com/pararang/hris/domain/repository"
 	"github.com/pararang/hris/dto"
+	"github.com/pararang/hris/entity"
 	"github.com/pararang/hris/libs/auth"
 )
 

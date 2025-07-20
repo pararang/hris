@@ -6,8 +6,8 @@ import (
 
 	"errors"
 
-	"github.com/pararang/hris/domain/entity"
 	"github.com/pararang/hris/domain/repository"
+	"github.com/pararang/hris/entity"
 	"golang.org/x/crypto/bcrypt"
 )
 

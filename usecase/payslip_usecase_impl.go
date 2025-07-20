@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pararang/hris/domain/entity"
 	"github.com/pararang/hris/domain/repository"
 	"github.com/pararang/hris/domain/usecase"
+	"github.com/pararang/hris/entity"
 	"github.com/pararang/hris/libs"
 	"github.com/pararang/hris/libs/auth"
 	"golang.org/x/sync/errgroup"

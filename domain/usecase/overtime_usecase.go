@@ -3,8 +3,8 @@ package usecase
 import (
 	"context"
 
-	"github.com/pararang/hris/domain/entity"
 	"github.com/pararang/hris/dto"
+	"github.com/pararang/hris/entity"
 )
 
 type OvertimeUseCase interface {

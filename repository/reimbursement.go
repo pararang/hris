@@ -5,8 +5,8 @@ import (
 	"database/sql"
 
 	"github.com/google/uuid"
-	"github.com/pararang/hris/domain/entity"
 	"github.com/pararang/hris/domain/repository"
+	"github.com/pararang/hris/entity"
 )
 
 type reimbursementRepository struct {

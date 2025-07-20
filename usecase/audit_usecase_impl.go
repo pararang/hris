@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/pararang/hris/domain/entity"
 	"github.com/pararang/hris/domain/repository"
+	"github.com/pararang/hris/entity"
 )
 
 type auditUseCase struct {
