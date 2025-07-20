@@ -28,37 +28,25 @@ func (r *userRepository) GetEmployeeByEmail(ctx context.Context, email string) (
 	return &user, nil
 }
 
-// CreateEmployee creates a new employee
-func (r *userRepository) CreateEmployee(ctx context.Context, employee *entity.User) (id uint, err error) {
-	// TODO: Implement database query to create employee
-	return 0, nil
-}
+// ListEmployees returns a list of employees with their details.
+// TODO: Implement pagination and filtering.
+func (r *userRepository) ListEmployees(ctx context.Context) ([]*entity.User, error) {
+	rows, err := r.db.QueryContext(ctx, "SELECT id, name, email, base_salary FROM users")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-func (r *userRepository) SetAsAdmin(ctx context.Context, id uint) error {
-	// TODO: Implement database query to create user
-	return nil
-}
-
-// GetEmployeeByID gets an employee by ID
-func (r *userRepository) GetEmployeeByID(ctx context.Context, id uint) (*entity.User, error) {
-	// TODO: Implement database query to get employee by ID
-	return nil, nil
-}
-
-// UpdateEmployee updates an employee
-func (r *userRepository) UpdateEmployee(ctx context.Context, employee *entity.User) error {
-	// TODO: Implement database query to update employee
-	return nil
-}
-
-// DeleteEmployee deletes an employee
-func (r *userRepository) DeleteEmployee(ctx context.Context, id uint) error {
-	// TODO: Implement database query to delete employee
-	return nil
-}
-
-// ListEmployees lists all employees
-func (r *userRepository) ListEmployees(ctx context.Context, offset, limit int) ([]*entity.User, error) {
-	// TODO: Implement database query to list employees with pagination
-	return nil, nil
+	var users []*entity.User
+	for rows.Next() {
+		var user entity.User
+		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.BaseSalary); err != nil {
+			return nil, err
+		}
+		users = append(users, &user)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return users, nil
 }

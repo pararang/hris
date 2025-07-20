@@ -1,8 +1,17 @@
 package dto
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
+
+type SubmitReimbursementParam struct {
+	UserID          uuid.UUID
+	Amount          float64
+	Description     string
+	TransactionDate time.Time
+}
 
 // SubmitReimbursementRequest represents the request to submit a reimbursement record
 type SubmitReimbursementRequest struct {

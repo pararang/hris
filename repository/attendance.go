@@ -48,7 +48,7 @@ func (r *attendanceRepository) FindOverlappingPayrollPeriod(ctx context.Context,
 }
 
 func (r *attendanceRepository) FindUserAttendanceByDate(ctx context.Context, userID uuid.UUID, date time.Time) (*entity.Attendance, error) {
-	sqlStatement := `SELECT id, date, user_id, clockin_at, clockout_at, payroll_period_id, created_by FROM attendances WHERE user_id = $1 AND date = $2`
+	sqlStatement := `SELECT id, date, user_id, clockin_at, clockout_at, payroll_period_id, created_by FROM attendances WHERE user_id = $1 AND date = $2 LIMIT 1`
 
 	var attendance entity.Attendance
 	err := r.db.QueryRowContext(ctx, sqlStatement, userID, date.Format(time.DateOnly)).
@@ -104,4 +104,28 @@ func (r *attendanceRepository) UpdateAttendance(ctx context.Context, attendance 
 	}
 
 	return attendance, nil
+}
+
+func (r *attendanceRepository) GetPayrollPeriodByID(ctx context.Context, id uuid.UUID) (*entity.PayrollPeriod, error) {
+	sqlStatement := `SELECT id, start_date, end_date, status FROM payroll_periods WHERE id = $1`
+
+	var period entity.PayrollPeriod
+	err := r.db.QueryRowContext(ctx, sqlStatement, id).Scan(&period.ID, &period.StartDate, &period.EndDate, &period.Status)
+	if err != nil {
+		return nil, err
+	}
+
+	return &period, nil
+}
+
+func (r *attendanceRepository) CountAttendance(ctx context.Context, userID, payrollPeriodID uuid.UUID) (int, error) {
+	sqlStatement := `SELECT COUNT(1) FROM attendances WHERE user_id = $1 AND payroll_period_id = $2`
+
+	var count int
+	err := r.db.QueryRowContext(ctx, sqlStatement, userID, payrollPeriodID).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }

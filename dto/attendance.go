@@ -6,6 +6,11 @@ import (
 	"github.com/google/uuid"
 )
 
+type CreateAttendancePeriodParam struct {
+	StartDate time.Time `json:"start_date"`
+	EndDate   time.Time `json:"end_date"`
+}
+
 // CreateAttendancePeriodRequest represents the request to create a new attendance period
 type CreateAttendancePeriodRequest struct {
 	StartDate string `json:"start_date" binding:"required"`

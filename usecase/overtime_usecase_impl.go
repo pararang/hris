@@ -8,7 +8,7 @@ import (
 
 	"github.com/prrng/dealls/domain/entity"
 	"github.com/prrng/dealls/domain/repository"
-	"github.com/prrng/dealls/domain/usecase"
+	"github.com/prrng/dealls/dto"
 	"github.com/prrng/dealls/libs"
 	"github.com/prrng/dealls/libs/auth"
 )
@@ -29,7 +29,7 @@ func NewOvertimeUseCase(
 	}
 }
 
-func (o *overtimeUseCase) SubmitOvertime(ctx context.Context, param *usecase.SubmitOvertimeParam) (*entity.Overtime, error) {
+func (o *overtimeUseCase) SubmitOvertime(ctx context.Context, param *dto.SubmitOvertimeParam) (*entity.Overtime, error) {
 	_, err := o.overtimeRepo.FindUserOvertimeByDate(ctx, param.UserID, param.Date)
 	if err == nil {
 		return nil, libs.ErrOvertimeAlreadySubmitted{}

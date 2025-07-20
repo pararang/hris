@@ -46,3 +46,16 @@ func (r *overtimeRepository) FindUserOvertimeByDate(ctx context.Context, userID 
 
 	return overtime, nil
 }
+
+func (r *overtimeRepository) CountUserOvertimeHoursInPeriod(ctx context.Context, userID, payrollPeriodID uuid.UUID) (int32, error) {
+	// status ignored for demo purpose
+	sqlStat := `SELECT SUM(hours_taken) FROM overtimes WHERE user_id = $1 AND payroll_period_id = $2`
+
+	var hoursTaken sql.NullInt32
+	err := r.db.QueryRowContext(ctx, sqlStat, userID, payrollPeriodID).Scan(&hoursTaken)
+	if err != nil {
+		return 0, err
+	}
+
+	return hoursTaken.Int32, nil
+}

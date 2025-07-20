@@ -6,11 +6,18 @@ import (
 	"github.com/google/uuid"
 )
 
+type SubmitOvertimeParam struct {
+	UserID     uuid.UUID
+	HoursTaken uint8
+	Date       time.Time
+	Reason     string
+}
+
 // SubmitOvertimeRequest represents the request to submit an overtime record
 type SubmitOvertimeRequest struct {
 	Date       string `json:"date" binding:"required,datetime=2006-01-02"`
 	HoursTaken uint8  `json:"hours_taken" binding:"required,number,min=1,max=3"`
-	Reason     string `json:"reason" validate:"required"`
+	Reason     string `json:"reason" binding:"required"`
 }
 
 // OvertimeResponse represents the overtime data in responses

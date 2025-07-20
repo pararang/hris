@@ -36,6 +36,7 @@ func Serve() {
 	attendanceRepo := repository.NewAttendanceRepository(db)
 	overtimeRepo := repository.NewOvertimeRepository(db)
 	reimbursementRepo := repository.NewReimbursementRepository(db)
+	payslipRepo := repository.NewPayslipRepository(db)
 	auditRepo := repository.NewAuditRepository(db)
 
 	// Initialize use cases
@@ -43,6 +44,7 @@ func Serve() {
 	attendanceUseCase := usecase.NewAttendanceUseCase(attendanceRepo)
 	overtimeUseCase := usecase.NewOvertimeUseCase(overtimeRepo, attendanceRepo)
 	reimbursementUseCase := usecase.NewReimbursementUseCase(reimbursementRepo, attendanceRepo)
+	payslipUseCase := usecase.NewPayslipUseCase(payslipRepo, userRepo, attendanceRepo, overtimeRepo, reimbursementRepo)
 	auditUseCase := usecase.NewAuditUseCase(auditRepo)
 
 	jwtService := auth.NewJWTService(cfg.JWT.Secret, time.Duration(cfg.JWT.ExpiryMinutes)*time.Minute)
@@ -53,6 +55,7 @@ func Serve() {
 	attendanceHandler := handler.NewAttendanceHandler(attendanceUseCase, libLog)
 	overtimeHandler := handler.NewOvertimeHandler(overtimeUseCase)
 	reimbursementHandler := handler.NewReimbursementHandler(reimbursementUseCase)
+	payslipHandler := handler.NewPayslipHandler(payslipUseCase)
 
 	authMiddleware := middleware.NewAuthMiddleware(jwtService)
 	loggerMiddleware := middleware.NewLoggerMiddleware(auditUseCase)
@@ -62,6 +65,7 @@ func Serve() {
 		attendanceHandler,
 		overtimeHandler,
 		reimbursementHandler,
+		payslipHandler,
 		authMiddleware,
 		loggerMiddleware,
 	)

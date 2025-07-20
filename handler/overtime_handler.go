@@ -46,7 +46,7 @@ func (h *OvertimeHandler) SubmitOvertime(c *gin.Context) {
 		return
 	}
 
-	overtime, err := h.overtimeUseCase.SubmitOvertime(ctx, &usecase.SubmitOvertimeParam{
+	overtime, err := h.overtimeUseCase.SubmitOvertime(ctx, &dto.SubmitOvertimeParam{
 		UserID:     userID,
 		HoursTaken: req.HoursTaken,
 		Date:       date,

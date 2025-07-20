@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/google/uuid"
 	"github.com/prrng/dealls/domain/entity"
 	"github.com/prrng/dealls/domain/repository"
 )
@@ -31,4 +32,14 @@ func (r *reimbursementRepository) CreateReimbursement(ctx context.Context, reimb
 		return nil, err
 	}
 	return reimbursement, nil
+}
+
+func (r *reimbursementRepository) CountUserApprovedAmountReimbursementByPeriod(ctx context.Context, userID, payrollPeriodID uuid.UUID) (float64, error) {
+	sqlStatement := `SELECT SUM(amount) FROM reimbursements WHERE user_id = $1 AND payroll_period_id = $2` // AND status = $3` ignored for demo purpose
+	var totalAmount sql.NullFloat64
+	err := r.db.QueryRowContext(ctx, sqlStatement, userID, payrollPeriodID).Scan(&totalAmount)
+	if err != nil {
+		return 0, err
+	}
+	return totalAmount.Float64, nil
 }

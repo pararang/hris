@@ -58,7 +58,7 @@ func (h *AttendanceHandler) CreateAttendancePeriod(c *gin.Context) {
 		return
 	}
 
-	createdPeriod, err := h.attendanceUseCase.CreateAttendancePeriod(ctx, usecase.CreateAttendancePeriodParam{
+	createdPeriod, err := h.attendanceUseCase.CreateAttendancePeriod(ctx, dto.CreateAttendancePeriodParam{
 		StartDate: startDate,
 		EndDate:   endDate,
 	})

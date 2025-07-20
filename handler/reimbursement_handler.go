@@ -44,7 +44,7 @@ func (h *ReimbursementHandler) SubmitReimbursement(c *gin.Context) {
 		return
 	}
 
-	reimbursement, err := h.reimbursementUseCase.SubmitReimbursement(ctx, usecase.SubmitReimbursementParam{
+	reimbursement, err := h.reimbursementUseCase.SubmitReimbursement(ctx, dto.SubmitReimbursementParam{
 		UserID:          userID,
 		Amount:          float64(req.Amount),
 		Description:     req.Description,

@@ -23,3 +23,15 @@ type ErrOvertimeAlreadySubmitted struct{}
 func (e ErrOvertimeAlreadySubmitted) Error() string {
 	return "overtime already submitted"
 }
+
+type ErrPayrollPeriodNotFound struct{}
+
+func (e ErrPayrollPeriodNotFound) Error() string {
+	return "payroll period not found"
+}
+
+type ErrPayrollPeriodNotPending struct{}
+
+func (e ErrPayrollPeriodNotPending) Error() string {
+	return "payroll period is not pending"
+}

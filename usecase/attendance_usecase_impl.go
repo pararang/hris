@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/prrng/dealls/domain/entity"
 	"github.com/prrng/dealls/domain/repository"
-	"github.com/prrng/dealls/domain/usecase"
+	"github.com/prrng/dealls/dto"
 	"github.com/prrng/dealls/libs/auth"
 
 	"github.com/prrng/dealls/libs"
@@ -41,7 +41,7 @@ func (a *attendanceUseCase) hasOverlappingAttendance(ctx context.Context, startD
 	return true, nil
 }
 
-func (a *attendanceUseCase) CreateAttendancePeriod(ctx context.Context, param usecase.CreateAttendancePeriodParam) (*entity.PayrollPeriod, error) {
+func (a *attendanceUseCase) CreateAttendancePeriod(ctx context.Context, param dto.CreateAttendancePeriodParam) (*entity.PayrollPeriod, error) {
 	hasOverlap, err := a.hasOverlappingAttendance(ctx, param.StartDate)
 	if err != nil {
 		return nil, fmt.Errorf("error on check overllaped periode: %w", err)
@@ -75,7 +75,7 @@ func (a *attendanceUseCase) ClockIn(ctx context.Context, userID uuid.UUID) (*ent
 	now := time.Now()
 
 	// check if weekend
-	if libs.IsWeekend(now) {
+	if !libs.IsWeekend(now) {
 		return nil, libs.ErrWeekendNotAllowed{}
 	}
 

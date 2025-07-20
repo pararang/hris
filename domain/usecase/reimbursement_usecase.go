@@ -2,19 +2,11 @@ package usecase
 
 import (
 	"context"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/prrng/dealls/domain/entity"
+	"github.com/prrng/dealls/dto"
 )
 
-type SubmitReimbursementParam struct {
-	UserID          uuid.UUID
-	Amount          float64
-	Description     string
-	TransactionDate time.Time
-}
-
 type ReimbursementUseCase interface {
-	SubmitReimbursement(ctx context.Context, param SubmitReimbursementParam) (*entity.Reimbursement, error)
+	SubmitReimbursement(ctx context.Context, param dto.SubmitReimbursementParam) (*entity.Reimbursement, error)
 }

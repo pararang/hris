@@ -12,6 +12,7 @@ func setupRouter(
 	attendanceHandler *handler.AttendanceHandler,
 	overtimeHandler *handler.OvertimeHandler,
 	reimbursementHandler *handler.ReimbursementHandler,
+	payslipHandler *handler.PayslipHandler,
 	authMiddleware *middleware.AuthMiddleware,
 	loggerMiddleware *middleware.LoggerMiddleware,
 ) *gin.Engine {
@@ -26,11 +27,12 @@ func setupRouter(
 			})
 		})
 
-		admin := v1.Group("")
-		admin.Use(authMiddleware.AdminAuth())
-		admin.Use(loggerMiddleware.Logger())
+		shouldAdmin := v1.Group("")
+		shouldAdmin.Use(authMiddleware.AdminAuth())
+		shouldAdmin.Use(loggerMiddleware.Logger())
 		{
-			admin.POST("/attendances/periods", attendanceHandler.CreateAttendancePeriod)
+			shouldAdmin.POST("/attendances/periods", attendanceHandler.CreateAttendancePeriod)
+			shouldAdmin.POST("/payrolls", payslipHandler.ProcessPayroll)
 		}
 
 		attendances := v1.Group("/attendances")

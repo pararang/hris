@@ -6,7 +6,7 @@ import (
 
 	"github.com/prrng/dealls/domain/entity"
 	"github.com/prrng/dealls/domain/repository"
-	"github.com/prrng/dealls/domain/usecase"
+	"github.com/prrng/dealls/dto"
 	"github.com/prrng/dealls/libs/auth"
 )
 
@@ -25,7 +25,7 @@ func NewReimbursementUseCase(
 	}
 }
 
-func (r *reimbursementUseCase) SubmitReimbursement(ctx context.Context, param usecase.SubmitReimbursementParam) (*entity.Reimbursement, error) {
+func (r *reimbursementUseCase) SubmitReimbursement(ctx context.Context, param dto.SubmitReimbursementParam) (*entity.Reimbursement, error) {
 	createdBy, ok := ctx.Value(auth.CtxKeyAuthUserEmail).(string)
 	if !ok {
 		return nil, fmt.Errorf("error on get createdBy")
