@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/prrng/dealls/domain/usecase"
-	"github.com/prrng/dealls/dto"
-	"github.com/prrng/dealls/libs/httpresp"
+	"github.com/pararang/hris/domain/usecase"
+	"github.com/pararang/hris/dto"
+	"github.com/pararang/hris/libs/httpresp"
 )
 
 // PayslipHandler handles payslip-related HTTP requests

@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/prrng/dealls/domain/entity"
+	"github.com/pararang/hris/domain/entity"
 )
 
 // UserRepository defines the interface for user-related database operations

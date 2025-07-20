@@ -3,8 +3,8 @@ package usecase
 import (
 	"context"
 
-	"github.com/prrng/dealls/domain/entity"
-	"github.com/prrng/dealls/dto"
+	"github.com/pararang/hris/domain/entity"
+	"github.com/pararang/hris/dto"
 )
 
 type ReimbursementUseCase interface {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/prrng/dealls/dbase"
+	"github.com/pararang/hris/dbase"
 )
 
 type QueryExecutor interface {

@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/prrng/dealls/domain/entity"
+	"github.com/pararang/hris/domain/entity"
 )
 
 // PayslipRepository defines the interface for payslip-related database operations

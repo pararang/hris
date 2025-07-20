@@ -8,11 +8,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/prrng/dealls/domain/usecase"
-	"github.com/prrng/dealls/dto"
-	"github.com/prrng/dealls/libs"
-	"github.com/prrng/dealls/libs/auth"
-	"github.com/prrng/dealls/libs/httpresp"
+	"github.com/pararang/hris/domain/usecase"
+	"github.com/pararang/hris/dto"
+	"github.com/pararang/hris/libs"
+	"github.com/pararang/hris/libs/auth"
+	"github.com/pararang/hris/libs/httpresp"
 )
 
 type OvertimeHandler struct {

@@ -1,4 +1,4 @@
-module github.com/prrng/dealls
+module github.com/pararang/hris
 
 go 1.23.11
 

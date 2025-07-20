@@ -8,12 +8,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/prrng/dealls/domain/entity"
-	"github.com/prrng/dealls/domain/repository"
-	"github.com/prrng/dealls/dto"
-	"github.com/prrng/dealls/libs/auth"
+	"github.com/pararang/hris/domain/entity"
+	"github.com/pararang/hris/domain/repository"
+	"github.com/pararang/hris/dto"
+	"github.com/pararang/hris/libs/auth"
 
-	"github.com/prrng/dealls/libs"
+	"github.com/pararang/hris/libs"
 )
 
 type attendanceUseCase struct {

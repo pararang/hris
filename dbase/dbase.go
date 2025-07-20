@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	_ "github.com/lib/pq"
-	"github.com/prrng/dealls/config"
+	"github.com/pararang/hris/config"
 )
 
 const (

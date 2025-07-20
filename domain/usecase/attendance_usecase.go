@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/prrng/dealls/domain/entity"
-	"github.com/prrng/dealls/dto"
+	"github.com/pararang/hris/domain/entity"
+	"github.com/pararang/hris/dto"
 )
 
 const (

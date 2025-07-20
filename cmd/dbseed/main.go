@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	"github.com/prrng/dealls/config"
-	"github.com/prrng/dealls/dbase"
-	"github.com/prrng/dealls/dbase/seeders"
+	"github.com/pararang/hris/config"
+	"github.com/pararang/hris/dbase"
+	"github.com/pararang/hris/dbase/seeders"
 )
 
 func main() {

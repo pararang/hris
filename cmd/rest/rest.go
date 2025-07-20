@@ -10,14 +10,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/prrng/dealls/config"
-	"github.com/prrng/dealls/dbase"
-	"github.com/prrng/dealls/handler"
-	"github.com/prrng/dealls/interface/api/middleware"
-	"github.com/prrng/dealls/libs/auth"
-	"github.com/prrng/dealls/libs/logger"
-	"github.com/prrng/dealls/repository"
-	"github.com/prrng/dealls/usecase"
+	"github.com/pararang/hris/config"
+	"github.com/pararang/hris/dbase"
+	"github.com/pararang/hris/handler"
+	"github.com/pararang/hris/libs/auth"
+	"github.com/pararang/hris/libs/logger"
+	"github.com/pararang/hris/middleware"
+	"github.com/pararang/hris/repository"
+	"github.com/pararang/hris/usecase"
 )
 
 func Serve() {
