@@ -45,7 +45,7 @@ func NewPayslipUseCase(
 
 func (p *payslipUseCase) calculatePeriodeWorkingDay(startDate, endDate time.Time) int16 {
 	var workingDays int16
-	for date := startDate; date.Before(endDate); date = date.AddDate(0, 0, 1) {
+	for date := startDate; !date.After(endDate); date = date.AddDate(0, 0, 1) {
 		if !libs.IsWeekend(date) {
 			workingDays++
 		}
