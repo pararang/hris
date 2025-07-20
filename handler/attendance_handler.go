@@ -89,19 +89,14 @@ func (h *AttendanceHandler) CreateAttendancePeriod(c *gin.Context) {
 }
 
 func (h *AttendanceHandler) Clockin(c *gin.Context) {
-	userID, ok := c.Get(auth.CtxKeyAuthUserID)
+	ctx := c.Request.Context()
+	userID, ok := ctx.Value(auth.CtxKeyAuthUserID).(uuid.UUID)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, httpresp.Err(errors.New("unauthorized user")))
 		return
 	}
 
-	actorEmail, ok := c.Get(auth.CtxKeyAuthUserEmail)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, httpresp.Err(errors.New("unauthorized user")))
-		return
-	}
-
-	createdAttendance, err := h.attendanceUseCase.ClockIn(c.Request.Context(), userID.(uuid.UUID), actorEmail.(string))
+	createdAttendance, err := h.attendanceUseCase.ClockIn(c.Request.Context(), userID)
 	if err != nil {
 		switch true {
 		case errors.Is(err, libs.ErrWeekendNotAllowed{}):
@@ -122,6 +117,29 @@ func (h *AttendanceHandler) Clockin(c *gin.Context) {
 }
 
 func (h *AttendanceHandler) Clockout(c *gin.Context) {
-	//TODO
-	return
+	ctx := c.Request.Context()
+	userID, ok := ctx.Value(auth.CtxKeyAuthUserID).(uuid.UUID)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, httpresp.Err(errors.New("unauthorized user")))
+		return
+	}
+
+	createdAttendance, err := h.attendanceUseCase.ClockOut(c.Request.Context(), userID)
+	if err != nil {
+		switch true {
+		case errors.Is(err, libs.ErrShouldClockIn{}):
+			c.JSON(http.StatusUnprocessableEntity, httpresp.Err(err))
+		default:
+			c.JSON(http.StatusInternalServerError, httpresp.Err(err))
+		}
+
+		return
+	}
+
+	c.JSON(http.StatusCreated, httpresp.OK(dto.ClockinResponse{
+		ID:         createdAttendance.ID,
+		Date:       createdAttendance.Date.Format(time.DateOnly),
+		ClockinAt:  createdAttendance.ClockinAt,
+		ClockoutAt: createdAttendance.ClockoutAt,
+	}))
 }

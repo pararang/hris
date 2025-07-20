@@ -10,9 +10,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/prrng/dealls/domain/entity"
 	"github.com/prrng/dealls/domain/repository"
+	"github.com/prrng/dealls/libs/auth"
 
 	"github.com/prrng/dealls/libs"
-	"github.com/prrng/dealls/libs/auth"
 )
 
 type attendanceUseCase struct {
@@ -58,7 +58,7 @@ func (a *attendanceUseCase) CreateAttendancePeriod(ctx context.Context, period *
 	return createdPeriod, nil
 }
 
-func (a *attendanceUseCase) ClockIn(ctx context.Context, userID uuid.UUID, actorEmail string) (*entity.Attendance, error) {
+func (a *attendanceUseCase) ClockIn(ctx context.Context, userID uuid.UUID) (*entity.Attendance, error) {
 	now := time.Now()
 
 	// check if weekend
@@ -82,13 +82,18 @@ func (a *attendanceUseCase) ClockIn(ctx context.Context, userID uuid.UUID, actor
 		return nil, fmt.Errorf("error on find payroll period: %w", err)
 	}
 
+	createdBy, ok := ctx.Value(auth.CtxKeyAuthUserEmail).(string)
+	if !ok {
+		return nil, fmt.Errorf("error on get updatedBy: %w", err)
+	}
+
 	createdAttendance, err := a.attendanceRepo.CreateAttendance(ctx, &entity.Attendance{
 		UserID:          userID,
 		Date:            now,
 		ClockinAt:       now,
 		PayrollPeriodID: payrollPeriod.ID,
 		BaseModel: entity.BaseModel{
-			CreatedBy: actorEmail,
+			CreatedBy: createdBy,
 		},
 	})
 
@@ -99,19 +104,31 @@ func (a *attendanceUseCase) ClockIn(ctx context.Context, userID uuid.UUID, actor
 	return createdAttendance, nil
 }
 
-func (a *attendanceUseCase) ClockOut(ctx context.Context, userID uuid.UUID, actorEmail string) (*entity.Attendance, error) {
+func (a *attendanceUseCase) ClockOut(ctx context.Context, userID uuid.UUID) (*entity.Attendance, error) {
 	now := time.Now()
-	createdAttendance, err := a.attendanceRepo.CreateAttendance(ctx, &entity.Attendance{
-		UserID:     userID,
-		Date:       now,
-		ClockoutAt: &now,
-		BaseModel: entity.BaseModel{
-			CreatedBy: ctx.Value(auth.CtxKeyAuthUserEmail).(string),
-		},
-	})
+
+	attendanceIn, err := a.attendanceRepo.FindUserAttendanceByDate(ctx, userID, now)
 	if err != nil {
-		return nil, fmt.Errorf("error on create attendance: %w", err)
+		if err == sql.ErrNoRows {
+			return nil, libs.ErrShouldClockIn{}
+		}
+
+		return nil, fmt.Errorf("error on find existing attendance: %w", err)
 	}
 
-	return createdAttendance, nil
+	updatedBy, ok := ctx.Value(auth.CtxKeyAuthUserEmail).(string)
+	if !ok {
+		return nil, fmt.Errorf("error on get updatedBy: %w", err)
+	}
+
+	attendanceIn.ClockoutAt = &now
+	attendanceIn.UpdatedBy = updatedBy
+	attendanceIn.UpdatedAt = now
+
+	attendanceOut, err := a.attendanceRepo.UpdateAttendance(ctx, attendanceIn)
+	if err != nil {
+		return nil, fmt.Errorf("error on set clockout: %w", err)
+	}
+
+	return attendanceOut, nil
 }

@@ -89,3 +89,19 @@ func (r *attendanceRepository) CreateAttendance(ctx context.Context, attendance 
 	attendance.ID = id
 	return attendance, nil
 }
+
+func (r *attendanceRepository) UpdateAttendance(ctx context.Context, attendance *entity.Attendance) (*entity.Attendance, error) {
+	// currently used only for cloclout
+	sqlStatement := `UPDATE attendances
+	SET clockout_at = $2, updated_by = $3, updated_at = $4
+	WHERE id = $1 RETURNING clockout_at`
+
+	err := r.db.QueryRowContext(ctx, sqlStatement, attendance.ID, attendance.ClockoutAt, attendance.UpdatedBy, attendance.UpdatedAt).
+		Scan(&attendance.ClockoutAt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return attendance, nil
+}

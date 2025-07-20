@@ -15,4 +15,5 @@ type AttendanceRepository interface {
 
 	FindUserAttendanceByDate(ctx context.Context, userID uuid.UUID, date time.Time) (*entity.Attendance, error)
 	CreateAttendance(ctx context.Context, attendance *entity.Attendance) (*entity.Attendance, error)
+	UpdateAttendance(ctx context.Context, attendance *entity.Attendance) (*entity.Attendance, error)
 }

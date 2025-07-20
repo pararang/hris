@@ -11,6 +11,6 @@ import (
 type AttendanceUseCase interface {
 	CreateAttendancePeriod(ctx context.Context, period *entity.PayrollPeriod) (*entity.PayrollPeriod, error)
 
-	ClockIn(ctx context.Context, userID uuid.UUID, actorEmail string) (*entity.Attendance, error)
-	ClockOut(ctx context.Context, userID uuid.UUID, actorEmail string) (*entity.Attendance, error)
+	ClockIn(ctx context.Context, userID uuid.UUID) (*entity.Attendance, error)
+	ClockOut(ctx context.Context, userID uuid.UUID) (*entity.Attendance, error)
 }

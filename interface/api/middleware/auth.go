@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
@@ -44,10 +45,12 @@ func (m *AuthMiddleware) EmployeeAuth() gin.HandlerFunc {
 			return
 		}
 
-		// Store user information in context
-		c.Set(auth.CtxKeyAuthUserID, claims.ID)
-		c.Set(auth.CtxKeyAuthUserEmail, claims.Email)
-		c.Set(auth.CtxKeyAuthUserRole, claims.Role)
+		currentCtx := c.Request.Context()
+		newCtx := context.WithValue(currentCtx, auth.CtxKeyAuthUserID, claims.ID)
+		newCtx = context.WithValue(newCtx, auth.CtxKeyAuthUserEmail, claims.Email)
+		newCtx = context.WithValue(newCtx, auth.CtxKeyAuthUserRole, claims.Role)
+
+		c.Request = c.Request.WithContext(newCtx)
 
 		c.Next()
 	}
@@ -83,10 +86,12 @@ func (m *AuthMiddleware) AdminAuth() gin.HandlerFunc {
 			return
 		}
 
-		// Store user information in context
-		c.Set(auth.CtxKeyAuthUserID, claims.ID)
-		c.Set(auth.CtxKeyAuthUserEmail, claims.Email)
-		c.Set(auth.CtxKeyAuthUserRole, claims.Role)
+		currentCtx := c.Request.Context()
+		newCtx := context.WithValue(currentCtx, auth.CtxKeyAuthUserID, claims.ID)
+		newCtx = context.WithValue(newCtx, auth.CtxKeyAuthUserEmail, claims.Email)
+		newCtx = context.WithValue(newCtx, auth.CtxKeyAuthUserRole, claims.Role)
+
+		c.Request = c.Request.WithContext(newCtx)
 
 		c.Next()
 	}
