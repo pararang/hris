@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/prrng/dealls/domain/entity"
 	"github.com/prrng/dealls/domain/repository"
+	"github.com/prrng/dealls/domain/usecase"
 	"github.com/prrng/dealls/libs/auth"
 
 	"github.com/prrng/dealls/libs"
@@ -40,8 +41,8 @@ func (a *attendanceUseCase) hasOverlappingAttendance(ctx context.Context, startD
 	return true, nil
 }
 
-func (a *attendanceUseCase) CreateAttendancePeriod(ctx context.Context, period *entity.PayrollPeriod) (*entity.PayrollPeriod, error) {
-	hasOverlap, err := a.hasOverlappingAttendance(ctx, period.StartDate)
+func (a *attendanceUseCase) CreateAttendancePeriod(ctx context.Context, param usecase.CreateAttendancePeriodParam) (*entity.PayrollPeriod, error) {
+	hasOverlap, err := a.hasOverlappingAttendance(ctx, param.StartDate)
 	if err != nil {
 		return nil, fmt.Errorf("error on check overllaped periode: %w", err)
 	}
@@ -50,7 +51,19 @@ func (a *attendanceUseCase) CreateAttendancePeriod(ctx context.Context, period *
 		return nil, errors.New("period start should be greater than existing periods")
 	}
 
-	createdPeriod, err := a.attendanceRepo.CreatePayrollPeriod(ctx, period)
+	createdBy, ok := ctx.Value(auth.CtxKeyAuthUserEmail).(string)
+	if !ok {
+		return nil, fmt.Errorf("error on get createdBy")
+	}
+
+	createdPeriod, err := a.attendanceRepo.CreatePayrollPeriod(ctx, &entity.PayrollPeriod{
+		StartDate: param.StartDate,
+		EndDate:   param.EndDate,
+		Status:    entity.PayrollPeriodStatusPending,
+		BaseModel: entity.BaseModel{
+			CreatedBy: createdBy,
+		},
+	})
 	if err != nil {
 		return nil, fmt.Errorf("error on create payroll period: %w", err)
 	}

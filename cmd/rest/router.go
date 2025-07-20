@@ -26,11 +26,11 @@ func setupRouter(
 			})
 		})
 
-		admin := v1.Group("/admin")
+		admin := v1.Group("")
 		admin.Use(authMiddleware.AdminAuth())
 		admin.Use(loggerMiddleware.Logger())
 		{
-			admin.POST("/payroll-periods", attendanceHandler.CreateAttendancePeriod)
+			admin.POST("/attendances/periods", attendanceHandler.CreateAttendancePeriod)
 		}
 
 		attendances := v1.Group("/attendances")

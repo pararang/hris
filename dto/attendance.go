@@ -14,8 +14,8 @@ type CreateAttendancePeriodRequest struct {
 
 type AttendancePeriodResponse struct {
 	ID        uuid.UUID `json:"id"`
-	StartDate time.Time `json:"start_date"`
-	EndDate   time.Time `json:"end_date"`
+	StartDate string    `json:"start_date"`
+	EndDate   string    `json:"end_date"`
 	Status    string    `json:"status"`
 }
 

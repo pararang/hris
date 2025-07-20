@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/prrng/dealls/domain/entity"
 	"github.com/prrng/dealls/domain/usecase"
 	"github.com/prrng/dealls/dto"
 	"github.com/prrng/dealls/libs"
@@ -38,12 +37,6 @@ func (h *AttendanceHandler) CreateAttendancePeriod(c *gin.Context) {
 		return
 	}
 
-	createdBy, ok := c.Get(auth.CtxKeyAuthUserEmail)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, httpresp.Err(errors.New("unauthorized user")))
-		return
-	}
-
 	dateParser := func(date string) (time.Time, error) {
 		return time.Parse(time.DateOnly, date)
 	}
@@ -65,16 +58,10 @@ func (h *AttendanceHandler) CreateAttendancePeriod(c *gin.Context) {
 		return
 	}
 
-	period := &entity.PayrollPeriod{
+	createdPeriod, err := h.attendanceUseCase.CreateAttendancePeriod(ctx, usecase.CreateAttendancePeriodParam{
 		StartDate: startDate,
 		EndDate:   endDate,
-		Status:    entity.PayrollPeriodStatusPending,
-		BaseModel: entity.BaseModel{
-			CreatedBy: createdBy.(string),
-		},
-	}
-
-	createdPeriod, err := h.attendanceUseCase.CreateAttendancePeriod(ctx, period)
+	})
 	if err != nil {
 		h.log.Warn(err.Error())
 		c.JSON(http.StatusInternalServerError, httpresp.Err(err))
@@ -83,8 +70,8 @@ func (h *AttendanceHandler) CreateAttendancePeriod(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, httpresp.OK(dto.AttendancePeriodResponse{
 		ID:        createdPeriod.ID,
-		StartDate: createdPeriod.StartDate,
-		EndDate:   createdPeriod.EndDate,
+		StartDate: createdPeriod.StartDate.Format(time.DateOnly),
+		EndDate:   createdPeriod.EndDate.Format(time.DateOnly),
 		Status:    createdPeriod.Status,
 	}))
 }
