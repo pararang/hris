@@ -9,13 +9,13 @@ import (
 )
 
 type auditRepository struct {
-	db *sql.DB
+	*BaseRepository
 }
 
 // NewAuditRepository creates a new instance of AuditRepository
 func NewAuditRepository(db *sql.DB) repository.AuditRepository {
 	return &auditRepository{
-		db: db,
+		BaseRepository: NewBaseRepository(db),
 	}
 }
 

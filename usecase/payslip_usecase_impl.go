@@ -16,6 +16,7 @@ import (
 )
 
 type payslipUseCase struct {
+	db                *sql.DB
 	payslipRepo       repository.PayslipRepository
 	userRepo          repository.UserRepository
 	attendanceRepo    repository.AttendanceRepository
@@ -25,6 +26,7 @@ type payslipUseCase struct {
 
 // NewPayslipUseCase creates a new instance of PayslipUseCase
 func NewPayslipUseCase(
+	db *sql.DB,
 	payslipRepo repository.PayslipRepository,
 	userRepo repository.UserRepository,
 	attendanceRepo repository.AttendanceRepository,
@@ -32,6 +34,7 @@ func NewPayslipUseCase(
 	reimbursementRepo repository.ReimbursementRepository,
 ) *payslipUseCase {
 	return &payslipUseCase{
+		db:                db,
 		payslipRepo:       payslipRepo,
 		userRepo:          userRepo,
 		attendanceRepo:    attendanceRepo,
@@ -137,6 +140,13 @@ func (p *payslipUseCase) calculateTHPComponents(ctx context.Context, param calcu
 }
 
 func (p *payslipUseCase) GeneratePayslip(ctx context.Context, payrollPeriodID uuid.UUID) error {
+	tx, err := p.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+
+	defer tx.Rollback()
+
 	payrollPeriod, err := p.attendanceRepo.GetPayrollPeriodByID(ctx, payrollPeriodID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -159,7 +169,6 @@ func (p *payslipUseCase) GeneratePayslip(ctx context.Context, payrollPeriodID uu
 		return fmt.Errorf("error on get createdBy")
 	}
 
-	//TODO init db transaction
 	for _, employee := range employees {
 		thpComponent, err := p.calculateTHPComponents(ctx, calculateTHPParam{
 			UserID:          employee.ID,
@@ -192,6 +201,15 @@ func (p *payslipUseCase) GeneratePayslip(ctx context.Context, payrollPeriodID uu
 			return fmt.Errorf("error on create payslip: %w", err)
 		}
 
+		err = p.attendanceRepo.SetStatusPayrollPeriod(ctx, payrollPeriod.ID, entity.PayrollPeriodStatusCompleted)
+		if err != nil {
+			return fmt.Errorf("error on set status payroll period: %w", err)
+		}
+
+	}
+
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("error on commit transaction: %w", err)
 	}
 
 	return nil

@@ -11,12 +11,12 @@ import (
 )
 
 type overtimeRepository struct {
-	db *sql.DB
+	*BaseRepository
 }
 
 func NewOvertimeRepository(db *sql.DB) repository.OvertimeRepository {
 	return &overtimeRepository{
-		db: db,
+		BaseRepository: NewBaseRepository(db),
 	}
 }
 
@@ -24,7 +24,7 @@ func (r *overtimeRepository) CreateOvertime(ctx context.Context, overtime *entit
 	sqlStat := `INSERT INTO overtimes (user_id, date, hours_taken, payroll_period_id, status, reason, created_at, created_by)
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
 
-	err := r.db.QueryRowContext(ctx, sqlStat,
+	err := r.executor(ctx).QueryRowContext(ctx, sqlStat,
 		overtime.UserID, overtime.Date, overtime.HoursTaken, overtime.PayrollPeriodID, overtime.Status, overtime.Reason, overtime.CreatedAt, overtime.CreatedBy).Scan(&overtime.ID)
 	if err != nil {
 		return nil, err
@@ -38,7 +38,7 @@ func (r *overtimeRepository) FindUserOvertimeByDate(ctx context.Context, userID 
 	FROM overtimes WHERE user_id = $1 AND date = $2`
 
 	overtime := &entity.Overtime{}
-	err := r.db.QueryRowContext(ctx, sqlStat, userID, date).Scan(
+	err := r.executor(ctx).QueryRowContext(ctx, sqlStat, userID, date).Scan(
 		&overtime.ID, &overtime.UserID, &overtime.Date, &overtime.HoursTaken, &overtime.PayrollPeriodID, &overtime.Status, &overtime.Reason, &overtime.CreatedAt, &overtime.CreatedBy)
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func (r *overtimeRepository) CountUserOvertimeHoursInPeriod(ctx context.Context,
 	sqlStat := `SELECT SUM(hours_taken) FROM overtimes WHERE user_id = $1 AND payroll_period_id = $2`
 
 	var hoursTaken sql.NullInt32
-	err := r.db.QueryRowContext(ctx, sqlStat, userID, payrollPeriodID).Scan(&hoursTaken)
+	err := r.executor(ctx).QueryRowContext(ctx, sqlStat, userID, payrollPeriodID).Scan(&hoursTaken)
 	if err != nil {
 		return 0, err
 	}

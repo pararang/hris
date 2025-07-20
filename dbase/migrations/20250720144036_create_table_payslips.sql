@@ -18,6 +18,7 @@ CREATE TABLE payslips (
 
 CREATE INDEX payslips_user ON payslips(user_id);
 CREATE INDEX payslips_payroll_periods ON payslips(payroll_period_id);
+CREATE UNIQUE INDEX ON payslips (user_id, payroll_period_id);
 ALTER TABLE payslips ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 ALTER TABLE payslips ADD FOREIGN KEY ("payroll_period_id") REFERENCES "payroll_periods" ("id");
 -- +goose StatementEnd

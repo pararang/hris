@@ -44,7 +44,7 @@ func Serve() {
 	attendanceUseCase := usecase.NewAttendanceUseCase(attendanceRepo)
 	overtimeUseCase := usecase.NewOvertimeUseCase(overtimeRepo, attendanceRepo)
 	reimbursementUseCase := usecase.NewReimbursementUseCase(reimbursementRepo, attendanceRepo)
-	payslipUseCase := usecase.NewPayslipUseCase(payslipRepo, userRepo, attendanceRepo, overtimeRepo, reimbursementRepo)
+	payslipUseCase := usecase.NewPayslipUseCase(db, payslipRepo, userRepo, attendanceRepo, overtimeRepo, reimbursementRepo)
 	auditUseCase := usecase.NewAuditUseCase(auditRepo)
 
 	jwtService := auth.NewJWTService(cfg.JWT.Secret, time.Duration(cfg.JWT.ExpiryMinutes)*time.Minute)

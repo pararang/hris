@@ -9,18 +9,18 @@ import (
 )
 
 type userRepository struct {
-	db *sql.DB
+	*BaseRepository
 }
 
 func NewUserRepository(db *sql.DB) repository.UserRepository {
 	return &userRepository{
-		db: db,
+		BaseRepository: NewBaseRepository(db),
 	}
 }
 
 func (r *userRepository) GetEmployeeByEmail(ctx context.Context, email string) (*entity.User, error) {
 	var user entity.User
-	err := r.db.QueryRowContext(ctx, "SELECT id, name, email, password, is_admin FROM users WHERE email = $1", email).
+	err := r.executor(ctx).QueryRowContext(ctx, "SELECT id, name, email, password, is_admin FROM users WHERE email = $1", email).
 		Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.IsAdmin)
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func (r *userRepository) GetEmployeeByEmail(ctx context.Context, email string) (
 // ListEmployees returns a list of employees with their details.
 // TODO: Implement pagination and filtering.
 func (r *userRepository) ListEmployees(ctx context.Context) ([]*entity.User, error) {
-	rows, err := r.db.QueryContext(ctx, "SELECT id, name, email, base_salary FROM users")
+	rows, err := r.executor(ctx).QueryContext(ctx, "SELECT id, name, email, base_salary FROM users")
 	if err != nil {
 		return nil, err
 	}

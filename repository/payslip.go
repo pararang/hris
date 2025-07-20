@@ -9,13 +9,13 @@ import (
 )
 
 type payslipRepository struct {
-	db *sql.DB
+	*BaseRepository
 }
 
 // NewPayslipRepository creates a new instance of PayslipRepository
 func NewPayslipRepository(db *sql.DB) repository.PayslipRepository {
 	return &payslipRepository{
-		db: db,
+		BaseRepository: NewBaseRepository(db),
 	}
 }
 
@@ -28,7 +28,7 @@ func (r *payslipRepository) CreatePayslip(ctx context.Context, payslip *entity.P
 					take_home_pay, details_json, created_by)
 				VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`
 
-	err := r.db.QueryRowContext(ctx, sqlInsert,
+	err := r.executor(ctx).QueryRowContext(ctx, sqlInsert,
 		payslip.UserID, payslip.PayrollPeriodID,
 		payslip.BaseSalary, payslip.ProratedBaseSalary,
 		payslip.OvertimePay, payslip.ReimbursementAmount,
