@@ -15,7 +15,7 @@ import (
 	"github.com/pararang/hris/handler"
 	"github.com/pararang/hris/libs/auth"
 	"github.com/pararang/hris/libs/logger"
-	"github.com/pararang/hris/middleware"
+	"github.com/pararang/hris/rest/middleware"
 	"github.com/pararang/hris/repository"
 	"github.com/pararang/hris/usecase"
 )

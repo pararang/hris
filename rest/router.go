@@ -3,7 +3,7 @@ package rest
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/pararang/hris/handler"
-	"github.com/pararang/hris/middleware"
+	"github.com/pararang/hris/rest/middleware"
 )
 
 // SetupRouter sets up the HTTP router

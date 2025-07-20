@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/pararang/hris/cmd/rest"
+	"github.com/pararang/hris/rest"
 )
 
 func main() {
