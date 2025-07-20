@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 
 	"errors"
 
@@ -27,7 +28,7 @@ func NewUserUseCase(userRepo repository.UserRepository, auditRepo repository.Aud
 func (u *userUseCase) Authenticate(ctx context.Context, email, password string) (*entity.User, error) {
 	user, err := u.userRepo.GetEmployeeByEmail(ctx, email)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed get employee data: %w", err)
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {

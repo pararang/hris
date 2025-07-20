@@ -27,13 +27,9 @@ type SubmitAttendanceRequest struct {
 	Notes    string    `json:"notes,omitempty"`
 }
 
-// AttendanceResponse represents the attendance data in responses
-type AttendanceResponse struct {
-	ID         uuid.UUID `json:"id"`
-	EmployeeID uint      `json:"employee_id"`
-	Date       time.Time `json:"date"`
-	CheckIn    time.Time `json:"check_in"`
-	CheckOut   time.Time `json:"check_out"`
-	Status     string    `json:"status"`
-	Notes      string    `json:"notes,omitempty"`
+type ClockinResponse struct {
+	ID         uuid.UUID  `json:"id"`
+	Date       string     `json:"date"`
+	ClockinAt  time.Time  `json:"clockin_at"`
+	ClockoutAt *time.Time `json:"clockout_at"`
 }

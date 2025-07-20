@@ -35,7 +35,8 @@ func (h *UserHandler) Login(c *gin.Context) {
 
 	employee, err := h.userUseCase.Authenticate(c.Request.Context(), req.Email, req.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, httpresp.Err(err))
+		h.log.Error("Failed to authenticate user", err)
+		c.JSON(http.StatusUnauthorized, httpresp.Err(errors.New("invalid credentials")))
 		return
 	}
 

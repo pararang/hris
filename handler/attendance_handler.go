@@ -6,9 +6,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/prrng/dealls/domain/entity"
 	"github.com/prrng/dealls/domain/usecase"
 	"github.com/prrng/dealls/dto"
+	"github.com/prrng/dealls/libs"
 	"github.com/prrng/dealls/libs/auth"
 	"github.com/prrng/dealls/libs/httpresp"
 	"github.com/prrng/dealls/libs/logger"
@@ -84,4 +86,42 @@ func (h *AttendanceHandler) CreateAttendancePeriod(c *gin.Context) {
 		EndDate:   createdPeriod.EndDate,
 		Status:    createdPeriod.Status,
 	}))
+}
+
+func (h *AttendanceHandler) Clockin(c *gin.Context) {
+	userID, ok := c.Get(auth.CtxKeyAuthUserID)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, httpresp.Err(errors.New("unauthorized user")))
+		return
+	}
+
+	actorEmail, ok := c.Get(auth.CtxKeyAuthUserEmail)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, httpresp.Err(errors.New("unauthorized user")))
+		return
+	}
+
+	createdAttendance, err := h.attendanceUseCase.ClockIn(c.Request.Context(), userID.(uuid.UUID), actorEmail.(string))
+	if err != nil {
+		switch true {
+		case errors.Is(err, libs.ErrWeekendNotAllowed{}):
+			c.JSON(http.StatusUnprocessableEntity, httpresp.Err(err))
+		default:
+			c.JSON(http.StatusInternalServerError, httpresp.Err(err))
+		}
+
+		return
+	}
+
+	c.JSON(http.StatusCreated, httpresp.OK(dto.ClockinResponse{
+		ID:         createdAttendance.ID,
+		Date:       createdAttendance.Date.Format(time.DateOnly),
+		ClockinAt:  createdAttendance.ClockinAt,
+		ClockoutAt: createdAttendance.ClockoutAt,
+	}))
+}
+
+func (h *AttendanceHandler) Clockout(c *gin.Context) {
+	//TODO
+	return
 }

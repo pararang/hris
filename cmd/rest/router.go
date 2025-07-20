@@ -15,36 +15,29 @@ func setupRouter(
 ) *gin.Engine {
 	router := gin.Default()
 
-	// Public routes
-	public := router.Group("/v1")
+	v1 := router.Group("/v1")
 	{
-		// Authentication
-		public.POST("/login", userHandler.Login)
-
-		// Health check
-		public.GET("/health", func(c *gin.Context) {
+		v1.POST("/login", userHandler.Login)
+		v1.GET("/health", func(c *gin.Context) {
 			c.JSON(200, gin.H{
 				"status": "ok",
 			})
 		})
-	}
 
-	// Admin routes
-	admin := router.Group("/v1/admin")
-	admin.Use(authMiddleware.AdminAuth())
-	admin.Use(loggerMiddleware.Logger())
-	{
-		admin.POST("/payroll-periods", attendanceHandler.CreateAttendancePeriod)
+		admin := v1.Group("/admin")
+		admin.Use(authMiddleware.AdminAuth())
+		admin.Use(loggerMiddleware.Logger())
+		{
+			admin.POST("/payroll-periods", attendanceHandler.CreateAttendancePeriod)
+		}
 
-	}
-
-	// Employee routes
-	employee := router.Group("/api/employee")
-	employee.Use(authMiddleware.EmployeeAuth())
-	employee.Use(loggerMiddleware.Logger())
-	{
-		// employee.GET("/profile", userHandler.GetEmployeeProfile)
-		// employee.PUT("/profile", userHandler.UpdateEmployeeProfile)
+		attendances := v1.Group("/attendances")
+		attendances.Use(authMiddleware.EmployeeAuth())
+		{
+			attendances.POST("/clockin", attendanceHandler.Clockin)
+			attendances.POST("/clockout", attendanceHandler.Clockout)
+			// Add other employee attendance routes here
+		}
 	}
 
 	return router

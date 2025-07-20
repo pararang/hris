@@ -2,6 +2,8 @@ package entity
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 const (
@@ -21,10 +23,9 @@ type PayrollPeriod struct {
 // Attendance represents an employee's attendance record for a specific date
 type Attendance struct {
 	BaseModel
-	EmployeeID uint      `json:"employee_id"`
-	Date       time.Time `json:"date"`
-	CheckIn    time.Time `json:"check_in"`
-	CheckOut   time.Time `json:"check_out"`
-	Status     string    `json:"status"` // e.g., "Present", "Absent", "Late", "Half-day"
-	Notes      string    `json:"notes,omitempty"`
+	UserID          uuid.UUID  `json:"user_id"`
+	Date            time.Time  `json:"date"`
+	ClockinAt       time.Time  `json:"clockin_at"`
+	ClockoutAt      *time.Time `json:"clockout_at"`
+	PayrollPeriodID uuid.UUID  `json:"payroll_period_id"`
 }
