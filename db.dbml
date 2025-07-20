@@ -1,0 +1,127 @@
+// https://dbdiagram.io/
+
+Table users {
+  id UUID [pk, default: `gen_random_uuid()`, note: "Unique User ID"]
+  name VARCHAR(255) [unique, not null, note: "Login username"]
+  password VARCHAR(255) [not null, note: "Hashed password"]
+  full_name VARCHAR(255) [not null, note: "Full name"]
+  is_admin BOOLEAN [not null, default: false, note: "Flag for admin users"]
+  email VARCHAR(255) [unique, not null, note: "User's email address"]
+  base_salary DECIMAL(18,2) [note: "Employee's base monthly salary"]
+  created_at TIMESTAMPTZ [not null, default: `now()`, note: "Timestamp of creation"]
+  updated_at TIMESTAMPTZ [not null, default: `now()`, note: "Timestamp of last update"]
+  created_by UUID [null, note: "ID of user who created this record"]
+  updated_by UUID [null, note: "ID of user who last updated this record"]
+}
+
+Table payroll_periods {
+  id UUID [pk, default: `gen_random_uuid()`, note: "Unique Payroll Period ID"]
+  start_date DATE [not null, note: "Start date of the period"]
+  end_date DATE [not null, note: "End date of the period"]
+  status VARCHAR(20) [not null, default: 'pending', note: "Payroll status ('pending', 'processing', 'paid')"]
+  created_at TIMESTAMPTZ [not null, default: `now()`, note: "Timestamp of creation"]
+  created_by UUID [not null, note: "ID of admin user who created this period"]
+  updated_at TIMESTAMPTZ [not null, default: `now()`, note: "Timestamp of creation"]
+  updated_by UUID [null, note: "ID of user who last updated this record"]
+}
+
+Table attendances {
+  id UUID [pk, default: `gen_random_uuid()`, note: "Unique Attendance ID"]
+  user_id UUID [not null, note: "ID of the employee"]
+  date DATE [not null, note: "Date of attendance (UNIQUE per user per day)"]
+  check_in_time TIMESTAMPTZ [not null, note: "Timestamp of check-in"]
+  check_out_time TIMESTAMPTZ [null, note: "Timestamp of check-out"]
+  payroll_period_id UUID [null, note: "ID of the payroll period (NULLABLE until processed)"]
+  is_finalized BOOLEAN [not null, default: false, note: "True if part of a processed payslip"]
+  created_at TIMESTAMPTZ [not null, default: `now()`, note: "Timestamp of creation"]
+  updated_at TIMESTAMPTZ [not null, default: `now()`, note: "Timestamp of last update"]
+  created_by UUID [not null, note: "ID of user who submitted attendance"]
+  updated_by UUID [null, note: "ID of user who last updated attendance"]
+
+  Indexes {
+    (user_id, date) [unique]
+  }
+}
+
+Table overtimes {
+  id UUID [pk, default: `gen_random_uuid()`, note: "Unique Overtime Request ID"]
+  user_id UUID [not null, note: "ID of the employee"]
+  date DATE [not null, note: "Date of overtime"]
+  hours_taken DECIMAL(4,2) [not null, note: "Number of hours taken (max 3 per day)"]
+  payroll_period_id UUID [null, note: "ID of the payroll period (NULLABLE until processed)"]
+  status VARCHAR(20) [not null, default: 'pending', note: "Payroll status ('pending', 'approved', 'declined')"]
+  created_at TIMESTAMPTZ [not null, default: `now()`, note: "Timestamp of creation"]
+  updated_at TIMESTamptz [not null, default: `now()`, note: "Timestamp of last update"]
+  created_by UUID [not null, note: "ID of user who submitted overtime"]
+  updated_by UUID [null, note: "ID of user who last updated overtime"]
+}
+
+Table reimbursements {
+  id UUID [pk, default: `gen_random_uuid()`, note: "Unique Reimbursement Request ID"]
+  user_id UUID [not null, note: "ID of the employee"]
+  amount DECIMAL(18,2) [not null, note: "Amount to be reimbursed"]
+  description TEXT [null, note: "Description of reimbursement"]
+  transaction_date DATE [not null, default: `current_date`, note: "Date of request"]
+  payroll_period_id UUID [null, note: "ID of the payroll period (NULLABLE until processed)"]
+  status VARCHAR(20) [not null, default: 'pending', note: "Payroll status ('pending', 'approved', 'declined')"]
+  created_at TIMESTAMPTZ [not null, default: `now()`, note: "Timestamp of creation"]
+  updated_at TIMESTAMPTZ [not null, default: `now()`, note: "Timestamp of last update"]
+  created_by UUID [not null, note: "ID of user who submitted reimbursement"]
+  updated_by UUID [null, note: "ID of user who last updated reimbursement"]
+}
+
+Table payslips {
+  id UUID [pk, default: `gen_random_uuid()`, note: "Unique Payslip ID"]
+  user_id UUID [not null, note: "ID of the employee"]
+  payroll_period_id UUID [not null, note: "ID of the payroll period (UNIQUE per user per period)"]
+  base_salary DECIMAL(18,2) [not null, note: "Base salary used for calculation"]
+  prorated_salary_component DECIMAL(18,2) [not null, note: "Calculated prorated salary"]
+  overtime_pay_component DECIMAL(18,2) [not null, note: "Calculated overtime pay"]
+  reimbursement_component DECIMAL(18,2) [not null, note: "Total reimbursements"]
+  total_take_home_pay DECIMAL(18,2) [not null, note: "Accumulated total take-home pay"]
+  details_json JSONB [null, note: "JSON breakdown of components"]
+  created_at TIMESTAMPTZ [not null, default: `now()`, note: "Timestamp of creation"]
+  updated_at TIMESTAMPTZ [not null, default: `now()`, note: "Timestamp of last update"]
+  created_by UUID [not null, note: "ID of user who submitted reimbursement"]
+  updated_by UUID [null, note: "ID of user who last updated reimbursement"]
+
+  Indexes {
+    (user_id, payroll_period_id) [unique]
+  }
+}
+
+Table audit_logs {
+  id UUID [pk, default: `gen_random_uuid()`, note: "Unique Audit Log ID"]
+  table_name VARCHAR(255) [not null, note: "Name of the table audited"]
+  record_id UUID [not null, note: "ID of the affected record"]
+  action VARCHAR(50) [not null, note: "Type of action (e.g., INSERT, UPDATE)"]
+  old_data JSONB [null, note: "Old data state (for UPDATE/DELETE)"]
+  new_data JSONB [null, note: "New data state (for INSERT/UPDATE)"]
+  performed_by_user_id UUID [null, note: "ID of user who performed the action"]
+  performed_at TIMESTAMPTZ [not null, default: `now()`, note: "Timestamp of action"]
+  request_ip_address VARCHAR(45) [null, note: "IP address of the request"]
+  request_id UUID [null, note: "Request ID for tracing"]
+}
+
+// -------------------------------------------------------------------
+// Relationships
+// -------------------------------------------------------------------
+
+Ref: users.id < payroll_periods.created_by
+Ref: users.id < attendances.user_id
+Ref: users.id < attendances.created_by
+Ref: users.id < attendances.updated_by
+Ref: users.id < overtimes.user_id
+Ref: users.id < overtimes.created_by
+Ref: users.id < overtimes.updated_by
+Ref: users.id < reimbursements.user_id
+Ref: users.id < reimbursements.created_by
+Ref: users.id < reimbursements.updated_by
+Ref: users.id < payslips.user_id
+Ref: users.id < payslips.created_by
+Ref: users.id < audit_logs.performed_by_user_id
+
+Ref: payroll_periods.id < attendances.payroll_period_id
+Ref: payroll_periods.id < overtimes.payroll_period_id
+Ref: payroll_periods.id < reimbursements.payroll_period_id
+Ref: payroll_periods.id < payslips.payroll_period_id
