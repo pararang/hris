@@ -12,11 +12,11 @@ import (
 
 	"github.com/pararang/hris/config"
 	"github.com/pararang/hris/dbase"
-	"github.com/pararang/hris/handler"
 	"github.com/pararang/hris/libs/auth"
 	"github.com/pararang/hris/libs/logger"
-	"github.com/pararang/hris/rest/middleware"
 	"github.com/pararang/hris/repository"
+	"github.com/pararang/hris/rest/handler"
+	"github.com/pararang/hris/rest/middleware"
 	"github.com/pararang/hris/usecase"
 )
 
