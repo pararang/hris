@@ -39,6 +39,7 @@ func setupRouter(
 		{
 			shouldAdmin.POST("/attendances/periods", attendanceHandler.CreateAttendancePeriod)
 			shouldAdmin.POST("/payrolls", payslipHandler.ProcessPayroll)
+			shouldAdmin.GET("/payrolls/periods/:id", payslipHandler.GetPayrollSummary)
 		}
 
 		attendances := protectedV1.Group("/attendances")

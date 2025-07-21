@@ -14,4 +14,5 @@ type PayslipRepository interface {
 	CreatePayslip(ctx context.Context, payslip *entity.Payslip) error
 	ListUserPayslips(ctx context.Context, userID uuid.UUID) ([]entity.Payslip, error) // TODO: add pagination
 	GetPayslipByID(ctx context.Context, payslipID uuid.UUID) (*entity.Payslip, error)
+	GetPayslipsInPeriod(ctx context.Context, periodID uuid.UUID) ([]*entity.Payslip, error)
 }

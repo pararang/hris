@@ -12,4 +12,5 @@ type PayslipUseCase interface {
 	GeneratePayslip(ctx context.Context, payrollPeriodID uuid.UUID) error
 	GetListPayslip(ctx context.Context, userID uuid.UUID) ([]entity.Payslip, error)
 	GetPayslipDetail(ctx context.Context, payslipID uuid.UUID) (dto.PayslipBreakdownResponse, error)
+	GetPayrollPeriodSummary(ctx context.Context, payrollPeriodID uuid.UUID) (dto.PayrollSummaryResponse, error)
 }

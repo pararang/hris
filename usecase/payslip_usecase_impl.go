@@ -321,3 +321,67 @@ func (p *payslipUseCase) GetPayslipDetail(ctx context.Context, payslipID uuid.UU
 
 	return resp, nil
 }
+
+func (p *payslipUseCase) GetPayrollPeriodSummary(ctx context.Context, payrollPeriodID uuid.UUID) (dto.PayrollSummaryResponse, error) {
+
+	payrollPeriod, err := p.attendanceRepo.GetPayrollPeriodByID(ctx, payrollPeriodID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return dto.PayrollSummaryResponse{}, libs.ErrPayrollPeriodNotFound{}
+		}
+		return dto.PayrollSummaryResponse{}, fmt.Errorf("error on get payroll period: %w", err)
+	}
+
+	summary := dto.PayrollSummaryResponse{
+		ID:        payrollPeriodID,
+		StartDate: payrollPeriod.StartDate.Format(time.DateOnly),
+		EndDate:   payrollPeriod.EndDate.Format(time.DateOnly),
+	}
+
+	g, childCtx := errgroup.WithContext(ctx)
+	var mapUserEmails = make(map[string]string)
+	g.Go(func() error {
+		employees, err := p.userRepo.ListEmployees(ctx)
+		if err != nil {
+			return err
+		}
+
+		for _, employee := range employees {
+			mapUserEmails[employee.ID.String()] = employee.Email
+		}
+
+		return nil
+	})
+
+	var payslips []*entity.Payslip
+	g.Go(func() error {
+		ps, err := p.payslipRepo.GetPayslipsInPeriod(childCtx, payrollPeriodID)
+		if err != nil && err != sql.ErrNoRows {
+			return fmt.Errorf("failed to count reimbursement amount: %w", err)
+		}
+
+		payslips = ps
+
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		return summary, err
+	}
+
+	for _, payslip := range payslips {
+		summary.TotalTakeHomePay += payslip.TakeHomePay
+
+		// if payslip.TakeHomePay == 0 {
+		// 	continue // to reduce unnecessary iterations and to check data for testing
+		// }
+
+		summary.Employees = append(summary.Employees, dto.PayrollSummaryEmploye{
+			ID:          payslip.UserID,
+			Email:       mapUserEmails[payslip.UserID.String()],
+			TakeHomePay: payslip.TakeHomePay,
+		})
+	}
+
+	return summary, nil
+}

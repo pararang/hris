@@ -84,3 +84,16 @@ func (h *PayslipHandler) GetPayslipDetails(c *gin.Context) {
 
 	c.JSON(http.StatusOK, httpresp.OK(payslip))
 }
+
+func (h *PayslipHandler) GetPayrollSummary(c *gin.Context) {
+	ctx := c.Request.Context()
+	periodID := uuid.MustParse(c.Param("id"))
+
+	data, err := h.payslipUseCase.GetPayrollPeriodSummary(ctx, periodID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, httpresp.Err(err))
+		return
+	}
+
+	c.JSON(http.StatusOK, httpresp.OK(data))
+}

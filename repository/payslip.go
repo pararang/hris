@@ -92,3 +92,33 @@ func (r *payslipRepository) GetPayslipByID(ctx context.Context, payslipID uuid.U
 
 	return &payslip, nil
 }
+
+func (r *payslipRepository) GetPayslipsInPeriod(ctx context.Context, periodID uuid.UUID) ([]*entity.Payslip, error) {
+	var payslips []*entity.Payslip
+
+	sqlSelect := `SELECT id, user_id, payroll_period_id,
+					base_salary, prorated_base_salary,
+					overtime_pay, reimbursement_amount,
+					take_home_pay, details_json, created_by, created_at
+				FROM payslips WHERE payroll_period_id = $1`
+
+	rows, err := r.executor(ctx).QueryContext(ctx, sqlSelect, periodID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var payslip entity.Payslip
+		err := rows.Scan(&payslip.ID, &payslip.UserID, &payslip.PayrollPeriodID,
+			&payslip.BaseSalary, &payslip.ProratedBaseSalary,
+			&payslip.OvertimePay, &payslip.ReimbursementAmount,
+			&payslip.TakeHomePay, &payslip.DetailsJSON, &payslip.CreatedBy, &payslip.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		payslips = append(payslips, &payslip)
+	}
+
+	return payslips, nil
+}

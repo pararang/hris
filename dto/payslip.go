@@ -49,3 +49,17 @@ type PayslipBreakdownResponse struct {
 	Rembursements []PayslipBreakdownRembursement `json:"rembursements"`
 	Overtimes     []PayslipBreakdownOvertime     `json:"overtime"`
 }
+
+type PayrollSummaryEmploye struct {
+	ID          uuid.UUID `json:"id"`
+	Email       string    `json:"email"`
+	TakeHomePay float64   `json:"take_home_pay"`
+}
+
+type PayrollSummaryResponse struct {
+	ID               uuid.UUID               `json:"id"`
+	StartDate        string                  `json:"start_date"`
+	EndDate          string                  `json:"end_date"`
+	TotalTakeHomePay float64                 `json:"total_take_home_pay"`
+	Employees        []PayrollSummaryEmploye `json:"employees"`
+}
