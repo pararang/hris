@@ -214,12 +214,6 @@ This project follows Clean Architecture principles with clear separation of conc
 - **ReimbursementHandler**: Reimbursement request submission
 - **PayslipHandler**: Payslip generation and retrieval
 
-### Benefits of This Architecture
-
-- **Testability**: Each layer can be tested independently
-- **Maintainability**: Changes in one layer don't affect other layers
-- **Flexibility**: External frameworks can be replaced without affecting the core business logic
-- **Scalability**: The application can be scaled horizontally by adding more instances
 
 ## Database Schema
 
@@ -247,12 +241,3 @@ make fmt
 # Tidy dependencies
 make tidy
 ```
-
-## Features
-
-- Employee management
-- Attendance tracking
-- Overtime management
-- Reimbursement processing
-- Payslip generation
-- Audit logging
