@@ -75,7 +75,7 @@ func (a *attendanceUseCase) ClockIn(ctx context.Context, userID uuid.UUID) (*ent
 	now := time.Now()
 
 	// check if weekend
-	if !libs.IsWeekend(now) {
+	if libs.IsWeekend(now) {
 		return nil, libs.ErrWeekendNotAllowed{}
 	}
 
