@@ -1,8 +1,6 @@
 package dto
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 )
 
@@ -17,18 +15,37 @@ type PayslipComponentResponse struct {
 }
 
 // PayslipResponse represents the payslip data in responses
-type PayslipResponse struct {
-	ID                  uuid.UUID                  `json:"id"`
-	EmployeeID          uint                       `json:"employee_id"`
-	AttendancePeriodID  uint                       `json:"attendance_period_id"`
-	GeneratedDate       time.Time                  `json:"generated_date"`
-	BaseSalary          float64                    `json:"base_salary"`
-	AttendanceEffect    float64                    `json:"attendance_effect"`
-	OvertimeAmount      float64                    `json:"overtime_amount"`
-	ReimbursementAmount float64                    `json:"reimbursement_amount"`
-	Deductions          float64                    `json:"deductions"`
-	TaxAmount           float64                    `json:"tax_amount"`
-	TotalTakeHomePay    float64                    `json:"total_take_home_pay"`
-	Components          []PayslipComponentResponse `json:"components"`
-	Status              string                     `json:"status"`
+type ItemListPayslipResponse struct {
+	ID            uuid.UUID `json:"id"`
+	GeneratedDate string    `json:"generated_date"`
+	BaseSalary    float64   `json:"base_salary"`
+	Details       any       `json:"details"`
+}
+
+type PayslipBreakdownRembursement struct {
+	TransactionDate string  `json:"transaction_date"`
+	Description     string  `json:"description"`
+	Amount          float64 `json:"amount"`
+}
+
+type PayslipBreakdownAttendance struct {
+	Date     string `json:"date"`
+	ClockIn  string `json:"clock_in"`
+	ClockOut string `json:"clock_out"`
+}
+
+type PayslipBreakdownOvertime struct {
+	Date  string `json:"date"`
+	Hours int16  `json:"hours"`
+}
+
+type PayslipBreakdownResponse struct {
+	ID            uuid.UUID                      `json:"id"`
+	GeneratedDate string                         `json:"generated_date"`
+	BaseSalary    float64                        `json:"base_salary"`
+	TakeHomePay   float64                        `json:"take_home_pay"`
+	Details       any                            `json:"details"`
+	Attendances   []PayslipBreakdownAttendance   `json:"attendance"`
+	Rembursements []PayslipBreakdownRembursement `json:"rembursements"`
+	Overtimes     []PayslipBreakdownOvertime     `json:"overtime"`
 }

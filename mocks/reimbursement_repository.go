@@ -24,3 +24,11 @@ func (m *ReimbursementRepository) CountUserApprovedAmountReimbursementByPeriod(c
 	args := m.Called(ctx, userID, payrollPeriodID)
 	return args.Get(0).(float64), args.Error(1)
 }
+
+func (m *ReimbursementRepository) GetUserReimbursementListByPeriod(ctx context.Context, userID uuid.UUID, payrollPeriodID uuid.UUID) ([]*entity.Reimbursement, error) {
+	args := m.Called(ctx, userID, payrollPeriodID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*entity.Reimbursement), args.Error(1)
+}

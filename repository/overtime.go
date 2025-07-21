@@ -59,3 +59,27 @@ func (r *overtimeRepository) CountUserOvertimeHoursInPeriod(ctx context.Context,
 
 	return hoursTaken.Int32, nil
 }
+
+func (r *overtimeRepository) GetUserOvertimeListByPeriod(ctx context.Context, userID uuid.UUID, payrollPeriodID uuid.UUID) ([]*entity.Overtime, error) {
+	sqlStat := `SELECT id, user_id, date, hours_taken, payroll_period_id, status, reason, created_at, created_by
+	FROM overtimes WHERE user_id = $1 AND payroll_period_id = $2`
+
+	rows, err := r.executor(ctx).QueryContext(ctx, sqlStat, userID, payrollPeriodID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var overtimes []*entity.Overtime
+	for rows.Next() {
+		overtime := &entity.Overtime{}
+		err := rows.Scan(
+			&overtime.ID, &overtime.UserID, &overtime.Date, &overtime.HoursTaken, &overtime.PayrollPeriodID, &overtime.Status, &overtime.Reason, &overtime.CreatedAt, &overtime.CreatedBy)
+		if err != nil {
+			return nil, err
+		}
+		overtimes = append(overtimes, overtime)
+	}
+
+	return overtimes, nil
+}

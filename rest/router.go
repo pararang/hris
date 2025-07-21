@@ -50,6 +50,8 @@ func setupRouter(
 
 		protectedV1.POST("/overtimes", authMiddleware.EmployeeAuth(), overtimeHandler.SubmitOvertime)
 		protectedV1.POST("/reimbursements", authMiddleware.EmployeeAuth(), reimbursementHandler.SubmitReimbursement)
+		protectedV1.GET("payslips", authMiddleware.EmployeeAuth(), payslipHandler.ListUserPayslips)
+		protectedV1.GET("payslips/:id", authMiddleware.EmployeeAuth(), payslipHandler.GetPayslipDetails)
 	}
 
 	return router

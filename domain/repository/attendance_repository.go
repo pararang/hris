@@ -15,10 +15,11 @@ type AttendanceRepository interface {
 	FindOverlappingPayrollPeriod(ctx context.Context, startDate time.Time) (uuid.UUID, error)
 	FindLatestPayrollPeriod(ctx context.Context) (*entity.PayrollPeriod, error)
 	GetPayrollPeriodByID(ctx context.Context, id uuid.UUID) (*entity.PayrollPeriod, error)
-	SetStatusPayrollPeriod(ctx context.Context, id uuid.UUID, status string) error
+	SetStatusPayrollPeriod(ctx context.Context, id uuid.UUID, status, updatedBy string) error
 
 	FindUserAttendanceByDate(ctx context.Context, userID uuid.UUID, date time.Time) (*entity.Attendance, error)
 	CreateAttendance(ctx context.Context, attendance *entity.Attendance) (*entity.Attendance, error)
 	UpdateAttendance(ctx context.Context, attendance *entity.Attendance) (*entity.Attendance, error)
 	CountAttendance(ctx context.Context, userID, payrollPeriodID uuid.UUID) (int, error)
+	GetUserAttendanceListByPeriod(ctx context.Context, userID uuid.UUID, payrollPeriodID uuid.UUID) ([]*entity.Attendance, error)
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pararang/hris/domain/repository"
 	"github.com/pararang/hris/domain/usecase"
+	"github.com/pararang/hris/dto"
 	"github.com/pararang/hris/entity"
 	"github.com/pararang/hris/libs"
 	"github.com/pararang/hris/libs/auth"
@@ -59,7 +60,7 @@ func (p *payslipUseCase) calculateOvertimePay(baseSalary float64, overtimeHours 
 }
 
 func (p *payslipUseCase) calculateProrateBaseSalary(baseSalary float64, attendDays, workingDays int16) float64 {
-	return baseSalary * (float64(attendDays)/float64(workingDays))
+	return baseSalary * (float64(attendDays) / float64(workingDays))
 }
 
 type calculateTHPParam struct {
@@ -134,7 +135,7 @@ func (p *payslipUseCase) calculateTHPComponents(ctx context.Context, param calcu
 		AttendanceDays:    attendanceDays,
 		ProrateBaseSalary: prorateBaseSalary,
 		OvertimePay:       overtimePay,
-		OvertimeHours:     overtimeHours,
+		OvertimeHours:     uint16(overtimeHours),
 		ReimbursementPay:  reimbursementPay,
 	}, nil
 }
@@ -164,18 +165,22 @@ func (p *payslipUseCase) GeneratePayslip(ctx context.Context, payrollPeriodID uu
 		return fmt.Errorf("error on list employees: %w", err)
 	}
 
-	createdBy, ok := ctx.Value(auth.CtxKeyAuthUserEmail).(string)
+	actor, ok := ctx.Value(auth.CtxKeyAuthUserEmail).(string)
 	if !ok {
 		return fmt.Errorf("error on get createdBy")
 	}
 
+	totalWorkingDays := p.calculatePeriodeWorkingDay(payrollPeriod.StartDate, payrollPeriod.EndDate)
 	for _, employee := range employees {
 		thpComponent, err := p.calculateTHPComponents(ctx, calculateTHPParam{
 			UserID:          employee.ID,
 			PayrollPeriodID: payrollPeriodID,
 			BaseSalary:      employee.BaseSalary,
-			WorkingDays:     p.calculatePeriodeWorkingDay(payrollPeriod.StartDate, payrollPeriod.EndDate),
+			WorkingDays:     totalWorkingDays,
 		})
+
+		thpComponent.DatePeriod = payrollPeriod.StartDate.Format(time.DateOnly) + " - " + payrollPeriod.EndDate.Format(time.DateOnly)
+		thpComponent.WorkingDays = uint16(totalWorkingDays)
 
 		if err != nil {
 			return fmt.Errorf("error on calculate THP components: %w", err)
@@ -193,7 +198,7 @@ func (p *payslipUseCase) GeneratePayslip(ctx context.Context, payrollPeriodID uu
 			TakeHomePay:         totalTHP,
 			DetailsJSON:         thpComponent,
 			BaseModel: entity.BaseModel{
-				CreatedBy: createdBy,
+				CreatedBy: actor,
 			},
 		})
 
@@ -201,7 +206,7 @@ func (p *payslipUseCase) GeneratePayslip(ctx context.Context, payrollPeriodID uu
 			return fmt.Errorf("error on create payslip: %w", err)
 		}
 
-		err = p.attendanceRepo.SetStatusPayrollPeriod(ctx, payrollPeriod.ID, entity.PayrollPeriodStatusCompleted)
+		err = p.attendanceRepo.SetStatusPayrollPeriod(ctx, payrollPeriod.ID, entity.PayrollPeriodStatusCompleted, actor)
 		if err != nil {
 			return fmt.Errorf("error on set status payroll period: %w", err)
 		}
@@ -213,4 +218,106 @@ func (p *payslipUseCase) GeneratePayslip(ctx context.Context, payrollPeriodID uu
 	}
 
 	return nil
+}
+
+func (p *payslipUseCase) GetListPayslip(ctx context.Context, userID uuid.UUID) ([]entity.Payslip, error) {
+	payslips, err := p.payslipRepo.ListUserPayslips(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("error on list payslips: %w", err)
+	}
+
+	return payslips, nil
+}
+
+func (p *payslipUseCase) GetPayslipDetail(ctx context.Context, payslipID uuid.UUID) (dto.PayslipBreakdownResponse, error) {
+	payslip, err := p.payslipRepo.GetPayslipByID(ctx, payslipID)
+	if err != nil {
+		return dto.PayslipBreakdownResponse{}, fmt.Errorf("error on get payslip by id: %w", err)
+	}
+
+	// TODO check ownership
+	// assume its user's own and the id is uuid so its should be safe
+
+	resp := dto.PayslipBreakdownResponse{
+		ID:            payslip.ID,
+		GeneratedDate: payslip.CreatedAt.Format(time.DateTime),
+		BaseSalary:    payslip.BaseSalary,
+		Details:       payslip.DetailsJSON,
+		TakeHomePay:   payslip.TakeHomePay,
+	}
+
+	g, childCtx := errgroup.WithContext(ctx)
+	var attendancesList []dto.PayslipBreakdownAttendance
+	g.Go(func() error {
+		attendances, err := p.attendanceRepo.GetUserAttendanceListByPeriod(ctx, payslip.UserID, payslip.PayrollPeriodID)
+		if err != nil && err != sql.ErrNoRows {
+			return fmt.Errorf("error on get attendances by user id: %w", err)
+		}
+
+		if len(attendances) > 0 {
+			for _, day := range attendances {
+				attendancesList = append(attendancesList, dto.PayslipBreakdownAttendance{
+					Date:    day.Date.Format(time.DateOnly),
+					ClockIn: day.ClockinAt.Format(time.DateTime),
+					ClockOut: func() string {
+						if day.ClockoutAt != nil {
+							return day.ClockoutAt.Format(time.DateTime)
+						}
+						return ""
+					}(),
+				})
+			}
+		}
+
+		return nil
+	})
+
+	var overtimeList []dto.PayslipBreakdownOvertime
+	g.Go(func() error {
+		overtimes, err := p.overtimeRepo.GetUserOvertimeListByPeriod(childCtx, payslip.UserID, payslip.PayrollPeriodID)
+		if err != nil && err != sql.ErrNoRows {
+			return fmt.Errorf("failed to count overtime hours: %w", err)
+		}
+
+		if len(overtimes) > 0 {
+			for _, overtime := range overtimes {
+				overtimeList = append(overtimeList, dto.PayslipBreakdownOvertime{
+					Date:  overtime.Date.Format(time.DateOnly),
+					Hours: int16(overtime.HoursTaken),
+				})
+			}
+		}
+
+		return nil
+	})
+
+	var reimbursementList []dto.PayslipBreakdownRembursement
+	g.Go(func() error {
+		reimbursements, err := p.reimbursementRepo.GetUserReimbursementListByPeriod(childCtx, payslip.UserID, payslip.PayrollPeriodID)
+		if err != nil && err != sql.ErrNoRows {
+			return fmt.Errorf("failed to count reimbursement amount: %w", err)
+		}
+
+		if len(reimbursements) > 0 {
+			for _, reimbursement := range reimbursements {
+				reimbursementList = append(reimbursementList, dto.PayslipBreakdownRembursement{
+					TransactionDate: reimbursement.TransactionDate.Format(time.DateOnly),
+					Description:     reimbursement.Description,
+					Amount:          reimbursement.Amount,
+				})
+			}
+		}
+
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		return resp, err
+	}
+
+	resp.Attendances = attendancesList
+	resp.Overtimes = overtimeList
+	resp.Rembursements = reimbursementList
+
+	return resp, nil
 }

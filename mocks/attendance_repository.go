@@ -42,8 +42,8 @@ func (m *AttendanceRepository) GetPayrollPeriodByID(ctx context.Context, id uuid
 	return args.Get(0).(*entity.PayrollPeriod), args.Error(1)
 }
 
-func (m *AttendanceRepository) SetStatusPayrollPeriod(ctx context.Context, id uuid.UUID, status string) error {
-	args := m.Called(ctx, id, status)
+func (m *AttendanceRepository) SetStatusPayrollPeriod(ctx context.Context, id uuid.UUID, status, updatedBy string) error {
+	args := m.Called(ctx, id, status, updatedBy)
 	return args.Error(0)
 }
 
@@ -74,4 +74,12 @@ func (m *AttendanceRepository) UpdateAttendance(ctx context.Context, attendance 
 func (m *AttendanceRepository) CountAttendance(ctx context.Context, userID, payrollPeriodID uuid.UUID) (int, error) {
 	args := m.Called(ctx, userID, payrollPeriodID)
 	return args.Get(0).(int), args.Error(1)
+}
+
+func (m *AttendanceRepository) GetUserAttendanceListByPeriod(ctx context.Context, userID, payrollPeriodID uuid.UUID) ([]*entity.Attendance, error) {
+	args := m.Called(ctx, userID, payrollPeriodID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*entity.Attendance), args.Error(1)
 }

@@ -43,3 +43,26 @@ func (r *reimbursementRepository) CountUserApprovedAmountReimbursementByPeriod(c
 	}
 	return totalAmount.Float64, nil
 }
+
+func (r *reimbursementRepository) GetUserReimbursementListByPeriod(ctx context.Context, userID uuid.UUID, payrollPeriodID uuid.UUID) ([]*entity.Reimbursement, error) {
+	sqlStatement := `SELECT id, user_id, amount, description, transaction_date, payroll_period_id, status, created_by, created_at, updated_at FROM reimbursements WHERE user_id = $1 AND payroll_period_id = $2`
+	rows, err := r.executor(ctx).QueryContext(ctx, sqlStatement, userID, payrollPeriodID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var reimbursements []*entity.Reimbursement
+	for rows.Next() {
+		reimbursement := &entity.Reimbursement{}
+		err := rows.Scan(&reimbursement.ID, &reimbursement.UserID, &reimbursement.Amount, &reimbursement.Description, &reimbursement.TransactionDate, &reimbursement.PayrollPeriodID, &reimbursement.Status, &reimbursement.CreatedBy, &reimbursement.CreatedAt, &reimbursement.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		reimbursements = append(reimbursements, reimbursement)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return reimbursements, nil
+}
