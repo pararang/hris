@@ -1,5 +1,7 @@
 package repository
 
+//go:generate mockery --name=AttendanceRepository --output=. --outpkg=repository --filename=attendance_repository_mock.go
+
 import (
 	"context"
 	"time"

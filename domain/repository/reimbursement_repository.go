@@ -1,5 +1,7 @@
 package repository
 
+//go:generate mockery --name=ReimbursementRepository --output=. --outpkg=repository --filename=reimbursement_repository_mock.go
+
 import (
 	"context"
 

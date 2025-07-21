@@ -1,0 +1,15 @@
+all: false
+dir: '{{.InterfaceDir}}'
+filename: '{{.InterfaceName}}_mock.go'
+force-file-write: true
+formatter: goimports
+include-auto-generated: false
+log-level: info
+structname: 'Mock{{.InterfaceName}}'
+pkgname: '{{.PackageName}}'
+recursive: false
+with-expecter: true
+packages:
+  github.com/pararang/hris/domain/repository:
+    config:
+      all: true

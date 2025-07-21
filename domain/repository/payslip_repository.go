@@ -1,5 +1,7 @@
 package repository
 
+//go:generate mockery --name=PayslipRepository --output=. --outpkg=repository --filename=payslip_repository_mock.go
+
 import (
 	"context"
 

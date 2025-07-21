@@ -1,5 +1,7 @@
 package repository
 
+//go:generate mockery --name=AuditRepository --output=. --outpkg=repository --filename=audit_repository_mock.go
+
 import (
 	"context"
 

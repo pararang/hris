@@ -3,12 +3,16 @@ package usecase
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"reflect"
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/pararang/hris/domain/repository"
 	"github.com/pararang/hris/entity"
+	"github.com/pararang/hris/mocks"
+	"github.com/stretchr/testify/mock"
 )
 
 func Test_payslipUseCase_calculatePeriodeWorkingDay(t *testing.T) {
@@ -173,18 +177,98 @@ func Test_payslipUseCase_calculateTHPComponents(t *testing.T) {
 		args    args
 		want    entity.PayslipDetails
 		wantErr bool
+		setup   func(attendanceRepo *mocks.AttendanceRepository, overtimeRepo *mocks.OvertimeRepository, reimbursementRepo *mocks.ReimbursementRepository)
 	}{
-		// TODO: Add test cases.
+		{
+			name: "success with all components",
+			fields: fields{},
+			args: args{
+				ctx: context.Background(),
+				param: calculateTHPParam{
+					UserID:          uuid.New(),
+					PayrollPeriodID: uuid.New(),
+					BaseSalary:      5000000,
+					WorkingDays:     20,
+				},
+			},
+			want: entity.PayslipDetails{
+				AttendanceDays:    15,
+				ProrateBaseSalary: 3750000,
+				OvertimePay:       625000,
+				OvertimeHours:     10,
+				ReimbursementPay:  200000,
+			},
+			wantErr: false,
+			setup: func(attendanceRepo *mocks.AttendanceRepository, overtimeRepo *mocks.OvertimeRepository, reimbursementRepo *mocks.ReimbursementRepository) {
+				attendanceRepo.On("CountAttendance", mock.Anything, mock.Anything, mock.Anything).Return(15, nil)
+				overtimeRepo.On("CountUserOvertimeHoursInPeriod", mock.Anything, mock.Anything, mock.Anything).Return(int32(10), nil)
+				reimbursementRepo.On("CountUserApprovedAmountReimbursementByPeriod", mock.Anything, mock.Anything, mock.Anything).Return(float64(200000), nil)
+			},
+		},
+		{
+			name: "success with no attendance",
+			fields: fields{},
+			args: args{
+				ctx: context.Background(),
+				param: calculateTHPParam{
+					UserID:          uuid.New(),
+					PayrollPeriodID: uuid.New(),
+					BaseSalary:      5000000,
+					WorkingDays:     20,
+				},
+			},
+			want: entity.PayslipDetails{
+				AttendanceDays:    0,
+				ProrateBaseSalary: 0,
+				OvertimePay:       625000,
+				OvertimeHours:     10,
+				ReimbursementPay:  200000,
+			},
+			wantErr: false,
+			setup: func(attendanceRepo *mocks.AttendanceRepository, overtimeRepo *mocks.OvertimeRepository, reimbursementRepo *mocks.ReimbursementRepository) {
+				attendanceRepo.On("CountAttendance", mock.Anything, mock.Anything, mock.Anything).Return(0, sql.ErrNoRows)
+				overtimeRepo.On("CountUserOvertimeHoursInPeriod", mock.Anything, mock.Anything, mock.Anything).Return(int32(10), nil)
+				reimbursementRepo.On("CountUserApprovedAmountReimbursementByPeriod", mock.Anything, mock.Anything, mock.Anything).Return(float64(200000), nil)
+			},
+		},
+		{
+			name: "error on attendance",
+			fields: fields{},
+			args: args{
+				ctx: context.Background(),
+				param: calculateTHPParam{
+					UserID:          uuid.New(),
+					PayrollPeriodID: uuid.New(),
+					BaseSalary:      5000000,
+					WorkingDays:     20,
+				},
+			},
+			want:    entity.PayslipDetails{},
+			wantErr: true,
+			setup: func(attendanceRepo *mocks.AttendanceRepository, overtimeRepo *mocks.OvertimeRepository, reimbursementRepo *mocks.ReimbursementRepository) {
+				attendanceRepo.On("CountAttendance", mock.Anything, mock.Anything, mock.Anything).Return(0, errors.New("database error"))
+				overtimeRepo.On("CountUserOvertimeHoursInPeriod", mock.Anything, mock.Anything, mock.Anything).Return(int32(0), nil)
+				reimbursementRepo.On("CountUserApprovedAmountReimbursementByPeriod", mock.Anything, mock.Anything, mock.Anything).Return(float64(0), nil)
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			attendanceRepo := &mocks.AttendanceRepository{}
+			overtimeRepo := &mocks.OvertimeRepository{}
+			reimbursementRepo := &mocks.ReimbursementRepository{}
+			
+			if tt.setup != nil {
+				tt.setup(attendanceRepo, overtimeRepo, reimbursementRepo)
+			}
+			
 			p := &payslipUseCase{
 				db:                tt.fields.db,
 				payslipRepo:       tt.fields.payslipRepo,
 				userRepo:          tt.fields.userRepo,
-				attendanceRepo:    tt.fields.attendanceRepo,
-				overtimeRepo:      tt.fields.overtimeRepo,
-				reimbursementRepo: tt.fields.reimbursementRepo,
+				attendanceRepo:    attendanceRepo,
+				overtimeRepo:      overtimeRepo,
+				reimbursementRepo: reimbursementRepo,
 			}
 			got, err := p.calculateTHPComponents(tt.args.ctx, tt.args.param)
 			if (err != nil) != tt.wantErr {
@@ -197,3 +281,4 @@ func Test_payslipUseCase_calculateTHPComponents(t *testing.T) {
 		})
 	}
 }
+

@@ -1,5 +1,7 @@
 package repository
 
+//go:generate mockery --name=OvertimeRepository --output=. --outpkg=repository --filename=overtime_repository_mock.go
+
 import (
 	"context"
 	"time"
