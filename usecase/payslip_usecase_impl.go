@@ -59,7 +59,7 @@ func (p *payslipUseCase) calculateOvertimePay(baseSalary float64, overtimeHours 
 }
 
 func (p *payslipUseCase) calculateProrateBaseSalary(baseSalary float64, attendDays, workingDays int16) float64 {
-	return baseSalary * float64(attendDays/workingDays)
+	return baseSalary * (float64(attendDays)/float64(workingDays))
 }
 
 type calculateTHPParam struct {
