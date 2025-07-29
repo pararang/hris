@@ -180,7 +180,7 @@ func Test_payslipUseCase_calculateTHPComponents(t *testing.T) {
 		setup   func(attendanceRepo *mocks.AttendanceRepository, overtimeRepo *mocks.OvertimeRepository, reimbursementRepo *mocks.ReimbursementRepository)
 	}{
 		{
-			name: "success with all components",
+			name:   "success with all components",
 			fields: fields{},
 			args: args{
 				ctx: context.Background(),
@@ -206,7 +206,7 @@ func Test_payslipUseCase_calculateTHPComponents(t *testing.T) {
 			},
 		},
 		{
-			name: "success with no attendance",
+			name:   "success with no attendance",
 			fields: fields{},
 			args: args{
 				ctx: context.Background(),
@@ -232,7 +232,7 @@ func Test_payslipUseCase_calculateTHPComponents(t *testing.T) {
 			},
 		},
 		{
-			name: "error on attendance",
+			name:   "error on attendance",
 			fields: fields{},
 			args: args{
 				ctx: context.Background(),
@@ -257,11 +257,11 @@ func Test_payslipUseCase_calculateTHPComponents(t *testing.T) {
 			attendanceRepo := &mocks.AttendanceRepository{}
 			overtimeRepo := &mocks.OvertimeRepository{}
 			reimbursementRepo := &mocks.ReimbursementRepository{}
-			
+
 			if tt.setup != nil {
 				tt.setup(attendanceRepo, overtimeRepo, reimbursementRepo)
 			}
-			
+
 			p := &payslipUseCase{
 				db:                tt.fields.db,
 				payslipRepo:       tt.fields.payslipRepo,
@@ -281,4 +281,3 @@ func Test_payslipUseCase_calculateTHPComponents(t *testing.T) {
 		})
 	}
 }
-
