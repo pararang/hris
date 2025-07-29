@@ -12,8 +12,10 @@ type PayslipDetails struct {
 	AttendanceDays    int16   `json:"attendance_days"`
 	ProrateBaseSalary float64 `json:"prorate_base_salary"`
 	OvertimePay       float64 `json:"overtime_pay"`
-	OvertimeHours     int32   `json:"overtime_hours"`
+	OvertimeHours     uint16  `json:"overtime_hours"`
 	ReimbursementPay  float64 `json:"reimbursement_pay"`
+	DatePeriod        string  `json:"date_period"`
+	WorkingDays       uint16  `json:"working_days"`
 }
 
 func (pd PayslipDetails) Value() (driver.Value, error) {

@@ -31,7 +31,7 @@ func setupRouter(
 	protectedV1 := router.Group("/v1")
 	{
 		protectedV1.Use(apiKeyMiddleware.Check())
-		protectedV1.POST("/login", userHandler.Login) // Login might also need to be excluded from APIKeyAuth if it's the entry point
+		protectedV1.POST("/login", userHandler.Login)
 
 		shouldAdmin := protectedV1.Group("")
 		shouldAdmin.Use(authMiddleware.AdminAuth())
@@ -39,9 +39,9 @@ func setupRouter(
 		{
 			shouldAdmin.POST("/attendances/periods", attendanceHandler.CreateAttendancePeriod)
 			shouldAdmin.POST("/payrolls", payslipHandler.ProcessPayroll)
+			shouldAdmin.GET("/payrolls/periods/:id", payslipHandler.GetPayrollSummary)
 		}
 
-		/// employee
 		attendances := protectedV1.Group("/attendances")
 		attendances.Use(authMiddleware.EmployeeAuth())
 		{
@@ -49,17 +49,10 @@ func setupRouter(
 			attendances.POST("/clockout", attendanceHandler.Clockout)
 		}
 
-		overtimes := protectedV1.Group("/overtimes")
-		overtimes.Use(authMiddleware.EmployeeAuth())
-		{
-			overtimes.POST("", overtimeHandler.SubmitOvertime)
-		}
-
-		reimbursements := protectedV1.Group("/reimbursements")
-		reimbursements.Use(authMiddleware.EmployeeAuth())
-		{
-			reimbursements.POST("", reimbursementHandler.SubmitReimbursement)
-		}
+		protectedV1.POST("/overtimes", authMiddleware.EmployeeAuth(), overtimeHandler.SubmitOvertime)
+		protectedV1.POST("/reimbursements", authMiddleware.EmployeeAuth(), reimbursementHandler.SubmitReimbursement)
+		protectedV1.GET("payslips", authMiddleware.EmployeeAuth(), payslipHandler.ListUserPayslips)
+		protectedV1.GET("payslips/:id", authMiddleware.EmployeeAuth(), payslipHandler.GetPayslipDetails)
 	}
 
 	return router

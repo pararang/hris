@@ -1,0 +1,585 @@
+{
+	"info": {
+		"_postman_id": "e9fac4fb-6b93-4ca4-83a7-a062cf4f06f4",
+		"name": "hris",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "381955"
+	},
+	"item": [
+		{
+			"name": "login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Set token to collection variable if status is 200\", function () {",
+							"    if (pm.response.code === 200) {",
+							"        var jsonData = pm.response.json();",
+							"        pm.collectionVariables.set(\"token\", jsonData.data.token);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"emp1@comp.id\",\n    \"password\": \"password1\"\n    // \"email\": \"admin@comp.id\",\n    // \"password\": \"password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/v1/login",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Set token to collection variable if status is 200\", function () {",
+							"    if (pm.response.code === 200) {",
+							"        var jsonData = pm.response.json();",
+							"        pm.collectionVariables.set(\"token\", jsonData.data.token);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    // \"email\": \"emp1@comp.id\",\n    // \"password\": \"password1\"\n    \"email\": \"admin@comp.id\",\n    \"password\": \"password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/v1/login",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create attendance period by admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Set token to collection variable if status is 200\", function () {",
+							"    if (pm.response.code === 200) {",
+							"        var jsonData = pm.response.json();",
+							"        pm.collectionVariables.set(\"token\", jsonData.data.token);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"start_date\": \"2025-06-20\",\n    \"end_date\": \"2025-07-21\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/v1/attendances/periods",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"attendances",
+						"periods"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "run payroll by admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"payroll_period_id\": \"f2304ee1-b444-4f09-a08a-5d663ae601f3\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/v1/payrolls",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"payrolls"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "clockin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/v1/attendances/clockin",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"attendances",
+						"clockin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "clockout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/v1/attendances/clockout",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"attendances",
+						"clockout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "overtimes - submit",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"date\": \"2025-07-20\",\n    \"hours_taken\": 3,\n    \"reason\": \"over\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/v1/overtimes",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"overtimes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "reimbursements - submit",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transaction_date\": \"2025-07-18\",\n    \"amount\": 50000,\n    \"description\": \"over\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/v1/reimbursements",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"reimbursements"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get list payslips",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transaction_date\": \"2025-07-18\",\n    \"amount\": 50000,\n    \"description\": \"over\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/v1/payslips",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"payslips"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get payslip detail - generate payslip",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transaction_date\": \"2025-07-18\",\n    \"amount\": 50000,\n    \"description\": \"over\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/v1/payslips/:id",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"payslips",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "db3c22e5-a01b-46e0-9e0e-9df9552c37ba",
+							"description": "payslip id"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get payroll summary by admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transaction_date\": \"2025-07-18\",\n    \"amount\": 50000,\n    \"description\": \"over\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/v1/payrolls/periods/:id",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"payrolls",
+						"periods",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "f2304ee1-b444-4f09-a08a-5d663ae601f3"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "qwerty1",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "x-api-key",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "http://localhost:8080/",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

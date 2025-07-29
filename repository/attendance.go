@@ -130,13 +130,35 @@ func (r *attendanceRepository) CountAttendance(ctx context.Context, userID, payr
 	return count, nil
 }
 
-func (r *attendanceRepository) SetStatusPayrollPeriod(ctx context.Context, id uuid.UUID, status string) error {
-	sqlStatement := `UPDATE payroll_periods SET status = $2 WHERE id = $1`
+func (r *attendanceRepository) SetStatusPayrollPeriod(ctx context.Context, id uuid.UUID, status, updatedBy string) error {
+	sqlStatement := `UPDATE payroll_periods SET status = $2, updated_by = $3, updated_at = $4 WHERE id = $1`
 
-	_, err := r.executor(ctx).ExecContext(ctx, sqlStatement, id, status)
+	_, err := r.executor(ctx).ExecContext(ctx, sqlStatement, id, status, updatedBy, time.Now())
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (r *attendanceRepository) GetUserAttendanceListByPeriod(ctx context.Context, userID uuid.UUID, payrollPeriodID uuid.UUID) ([]*entity.Attendance, error) {
+	sqlStatement := `SELECT id, date, user_id, payroll_period_id, clockin_at, clockout_at, created_by, created_at, updated_by, updated_at FROM attendances WHERE user_id = $1 AND payroll_period_id = $2`
+
+	rows, err := r.executor(ctx).QueryContext(ctx, sqlStatement, userID, payrollPeriodID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var attendances []*entity.Attendance
+	for rows.Next() {
+		var attendance entity.Attendance
+		err := rows.Scan(&attendance.ID, &attendance.Date, &attendance.UserID, &attendance.PayrollPeriodID, &attendance.ClockinAt, &attendance.ClockoutAt, &attendance.CreatedBy, &attendance.CreatedAt, &attendance.UpdatedBy, &attendance.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		attendances = append(attendances, &attendance)
+	}
+
+	return attendances, nil
 }
